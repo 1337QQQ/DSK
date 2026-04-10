@@ -3,565 +3,1672 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>David Schütze Haustechnik – Sanitär & Heizung Karlsruhe</title>
+<title>David Schütze – Badsanierung &amp; Haustechnik Karlsruhe</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
-  :root {
-    --navy:        #1a2c3d;
-    --orange:      #c8723a;
-    --orange-h:    #b56230;
-    --blue:        #2d5fa6;
-    --blue-h:      #254e8a;
-    --white:       #fafaf8;
-    --gray:        #f0ede8;
-    --gray-mid:    #c4beb6;
-    --muted:       #6b7885;
-    --T:           0.28s cubic-bezier(0.4,0,0.2,1);
-  }
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  html{scroll-behavior:smooth}
-  body{font-family:'DM Sans',sans-serif;color:var(--navy);background:var(--white);overflow-x:hidden}
+/* ══════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════ */
+:root {
+  --navy:     #1a2c3d;
+  --navy-d:   #111e2a;
+  --orange:   #c8723a;
+  --orange-h: #b56230;
+  --blue:     #2d5fa6;
+  --blue-h:   #254e8a;
+  --white:    #fafaf8;
+  --cream:    #f4f1ec;
+  --gray:     #e8e4de;
+  --muted:    #6b7885;
+  --T:        0.26s cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body { font-family: 'DM Sans', sans-serif; color: var(--navy); background: var(--white); overflow-x: hidden; }
 
-  /* COOKIE */
-  #ck{position:fixed;bottom:0;left:0;right:0;background:var(--navy);color:var(--white);z-index:9999;padding:16px 48px;display:flex;align-items:center;justify-content:space-between;gap:24px;border-top:2px solid var(--orange);box-shadow:0 -4px 28px rgba(0,0,0,.25);transition:transform .4s ease}
-  #ck.gone{transform:translateY(110%)}
-  .ck-t{font-size:.82rem;line-height:1.6;max-width:680px}
-  .ck-t a{color:var(--orange);text-decoration:none}
-  .ck-a{display:flex;gap:10px;flex-shrink:0}
-  .ck-ok{background:var(--orange);color:#fff;border:none;padding:9px 22px;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;transition:background var(--T)}
-  .ck-ok:hover{background:var(--orange-h)}
-  .ck-no{background:transparent;color:var(--gray-mid);border:1px solid var(--gray-mid);padding:9px 22px;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;transition:all var(--T)}
-  .ck-no:hover{border-color:#fff;color:#fff}
+/* ══════════════════════════════════════════════
+   COOKIE CONSENT
+══════════════════════════════════════════════ */
+#ck-overlay { position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:9998; opacity:0; visibility:hidden; transition:all .35s; }
+#ck-overlay.show { opacity:1; visibility:visible; }
+#ck { position:fixed; bottom:0; left:0; right:0; background:var(--navy); color:var(--white); z-index:9999;
+  border-top:2px solid var(--orange); box-shadow:0 -6px 40px rgba(0,0,0,.4);
+  transform:translateY(100%); transition:transform .4s cubic-bezier(.4,0,.2,1); }
+#ck.show { transform:translateY(0); }
+.ck-bar { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:18px 48px; flex-wrap:wrap; }
+.ck-bar-text { font-size:.82rem; line-height:1.65; color:rgba(255,255,255,.72); max-width:680px; }
+.ck-bar-text a { color:var(--orange); text-decoration:none; }
+.ck-bar-text a:hover { text-decoration:underline; }
+.ck-bar-actions { display:flex; gap:10px; flex-shrink:0; flex-wrap:wrap; }
+.ck-btn-all { background:var(--orange); color:#fff; border:none; padding:10px 24px; border-radius:3px;
+  font-family:'DM Sans',sans-serif; font-size:.82rem; font-weight:500; cursor:pointer; transition:background var(--T); white-space:nowrap; }
+.ck-btn-all:hover { background:var(--orange-h); }
+.ck-btn-ess { background:transparent; color:rgba(255,255,255,.6); border:1px solid rgba(255,255,255,.25);
+  padding:10px 24px; border-radius:3px; font-family:'DM Sans',sans-serif; font-size:.82rem; cursor:pointer;
+  transition:all var(--T); white-space:nowrap; }
+.ck-btn-ess:hover { border-color:rgba(255,255,255,.6); color:#fff; }
+.ck-btn-settings { background:transparent; color:rgba(255,255,255,.45); border:none; padding:10px 10px;
+  font-family:'DM Sans',sans-serif; font-size:.78rem; cursor:pointer; text-decoration:underline;
+  text-underline-offset:3px; white-space:nowrap; }
+.ck-btn-settings:hover { color:rgba(255,255,255,.8); }
+.ck-detail { display:none; border-top:1px solid rgba(255,255,255,.1); padding:30px 48px 26px; }
+.ck-detail.open { display:block; }
+.ck-detail-title { font-family:'Cormorant Garamond',serif; font-size:1.25rem; color:#fff; margin-bottom:8px; }
+.ck-detail-sub { font-size:.78rem; color:rgba(255,255,255,.5); line-height:1.65; margin-bottom:22px; max-width:700px; }
+.ck-detail-sub a { color:var(--orange); text-decoration:none; }
+.ck-categories { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:24px; }
+.ck-cat { background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); border-radius:4px; padding:18px; }
+.ck-cat-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; gap:10px; }
+.ck-cat-name { font-size:.85rem; font-weight:500; color:#fff; }
+.ck-cat-desc { font-size:.75rem; color:rgba(255,255,255,.45); line-height:1.6; }
+.ck-toggle { position:relative; width:42px; height:24px; flex-shrink:0; }
+.ck-toggle input { opacity:0; width:0; height:0; position:absolute; }
+.ck-toggle-slider { position:absolute; inset:0; background:rgba(255,255,255,.15); border-radius:100px; cursor:pointer; transition:background .25s; }
+.ck-toggle-slider::before { content:''; position:absolute; width:18px; height:18px; left:3px; top:3px; background:#fff; border-radius:50%; transition:transform .25s; box-shadow:0 1px 4px rgba(0,0,0,.3); }
+.ck-toggle input:checked + .ck-toggle-slider { background:var(--orange); }
+.ck-toggle input:checked + .ck-toggle-slider::before { transform:translateX(18px); }
+.ck-required-badge { font-size:.62rem; letter-spacing:.1em; text-transform:uppercase; color:var(--orange);
+  background:rgba(200,114,58,.15); border:1px solid rgba(200,114,58,.3); padding:3px 8px; border-radius:100px; white-space:nowrap; }
+.ck-detail-actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.ck-btn-save { background:var(--orange); color:#fff; border:none; padding:11px 30px; border-radius:3px;
+  font-family:'DM Sans',sans-serif; font-size:.85rem; font-weight:500; cursor:pointer; transition:background var(--T); }
+.ck-btn-save:hover { background:var(--orange-h); }
+.ck-btn-back { background:transparent; color:rgba(255,255,255,.55); border:1px solid rgba(255,255,255,.18);
+  padding:11px 24px; border-radius:3px; font-family:'DM Sans',sans-serif; font-size:.85rem; cursor:pointer; transition:all var(--T); }
+.ck-btn-back:hover { color:#fff; border-color:rgba(255,255,255,.5); }
 
-  /* HEADER */
-  header{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;background:rgba(26,44,61,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.07);transition:box-shadow var(--T)}
-  header.sc{box-shadow:0 4px 28px rgba(0,0,0,.35)}
-  .hi{max-width:1440px;margin:0 auto;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 40px;gap:20px}
-  .logo{display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0}
-  .lm{width:38px;height:38px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.2rem;color:#fff;clip-path:polygon(0 0,100% 0,100% 75%,85% 100%,0 100%)}
-  .lt{display:flex;flex-direction:column;line-height:1.15}
-  .ln{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.05rem;color:#fff}
-  .ls{font-size:.62rem;color:var(--orange);letter-spacing:.18em;text-transform:uppercase}
-  nav{display:flex;align-items:center;gap:2px}
-  .ni{position:relative}
-  .ni::after{content:'';position:absolute;top:100%;left:0;right:0;height:14px}
-  .nl{display:block;padding:8px 14px;color:rgba(255,255,255,.82);text-decoration:none;font-size:.85rem;letter-spacing:.03em;border-radius:3px;cursor:pointer;white-space:nowrap;transition:color var(--T),background var(--T)}
-  .nl:hover,.ni:hover>.nl{color:#fff;background:rgba(255,255,255,.07)}
-  .nd{position:absolute;top:calc(100% + 14px);left:50%;background:var(--navy);min-width:228px;border:1px solid rgba(255,255,255,.09);border-top:2px solid var(--orange);border-radius:0 0 6px 6px;padding:6px 0;opacity:0;visibility:hidden;transform:translateX(-50%) translateY(-6px);transition:opacity .2s,transform .2s,visibility .2s;box-shadow:0 18px 40px rgba(0,0,0,.3);pointer-events:none}
-  .ni:hover .nd{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);pointer-events:all}
-  .nd a{display:block;padding:9px 20px;color:rgba(255,255,255,.78);text-decoration:none;font-size:.83rem;transition:all var(--T)}
-  .nd a:hover{color:#fff;background:rgba(255,255,255,.06);padding-left:26px}
-  .btn-em{display:flex;align-items:center;gap:7px;background:var(--orange);color:#fff;border:none;padding:9px 18px;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:.83rem;font-weight:500;cursor:pointer;text-decoration:none;flex-shrink:0;letter-spacing:.03em;transition:background var(--T),transform var(--T),box-shadow var(--T);animation:pls 3s infinite}
-  .btn-em:hover{background:var(--orange-h);transform:translateY(-1px);box-shadow:0 4px 18px rgba(200,114,58,.45);animation:none}
-  @keyframes pls{0%,100%{box-shadow:0 0 0 0 rgba(200,114,58,.35)}55%{box-shadow:0 0 0 8px rgba(200,114,58,0)}}
-  .edot{width:7px;height:7px;border-radius:50%;background:#fff;animation:blk 1.4s infinite}
-  @keyframes blk{0%,100%{opacity:1}50%{opacity:.3}}
+/* ══════════════════════════════════════════════
+   HEADER
+══════════════════════════════════════════════ */
+header {
+  position: fixed; top:0; left:0; right:0; z-index:1000;
+  height: 72px;
+  background: rgba(26,44,61,.98);
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  transition: box-shadow var(--T);
+}
+header.sc { box-shadow: 0 4px 32px rgba(0,0,0,.4); background: rgba(26,44,61,1); }
+header.sc .nl { color:rgba(255,255,255,.92); }
+header.sc .nl:hover, header.sc .ni:hover > .nl { color:#fff; background:rgba(255,255,255,.1); }
+.hi {
+  max-width: 1440px; margin: 0 auto; height: 100%;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 40px; gap: 16px;
+}
+/* Logo */
+.logo { display:flex; align-items:center; gap:12px; text-decoration:none; flex-shrink:0; }
+.lm {
+  width: 40px; height: 40px; background: var(--orange);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.25rem; color: #fff;
+  clip-path: polygon(0 0,100% 0,100% 74%,84% 100%,0 100%);
+  letter-spacing: -.5px;
+}
+.lt { display:flex; flex-direction:column; line-height:1.15; }
+.ln { font-family:'Cormorant Garamond',serif; font-weight:600; font-size:1.08rem; color:#fff; }
+.ls { font-size:.6rem; color:var(--orange); letter-spacing:.2em; text-transform:uppercase; }
+/* Nav */
+nav { display:flex; align-items:center; gap:0; flex:1; justify-content:center; }
+.ni { position:relative; }
+.ni::after { content:''; position:absolute; top:100%; left:0; right:0; height:16px; }
+.nl {
+  display:block; padding:8px 13px; color:rgba(255,255,255,.8);
+  text-decoration:none; font-size:.84rem; letter-spacing:.03em;
+  border-radius:3px; cursor:pointer; white-space:nowrap;
+  transition:color var(--T), background var(--T);
+}
+.nl:hover, .ni:hover > .nl { color:#fff; background:rgba(255,255,255,.08); }
+.nd {
+  position:absolute; top:calc(100% + 16px); left:50%;
+  background:var(--navy-d); min-width:232px;
+  border:1px solid rgba(255,255,255,.1); border-top:2px solid var(--orange);
+  border-radius:0 0 6px 6px; padding:6px 0;
+  opacity:0; visibility:hidden;
+  transform:translateX(-50%) translateY(-8px);
+  transition:opacity .22s, transform .22s, visibility .22s;
+  box-shadow:0 20px 48px rgba(0,0,0,.35); pointer-events:none;
+}
+.ni:hover .nd { opacity:1; visibility:visible; transform:translateX(-50%) translateY(0); pointer-events:all; }
+.nd a {
+  display:block; padding:10px 20px; color:rgba(255,255,255,.75);
+  text-decoration:none; font-size:.83rem; transition:all var(--T);
+}
+.nd a:hover { color:#fff; background:rgba(255,255,255,.06); padding-left:27px; }
+/* Header right buttons */
+.h-actions { display:flex; align-items:center; gap:10px; flex-shrink:0; }
+.btn-termin-h {
+  display:flex; align-items:center; gap:7px;
+  background:transparent; color:rgba(255,255,255,.85);
+  border:1px solid rgba(255,255,255,.3); padding:9px 18px;
+  border-radius:3px; font-family:'DM Sans',sans-serif; font-size:.82rem;
+  font-weight:400; cursor:pointer; text-decoration:none; white-space:nowrap;
+  transition:all var(--T);
+}
+.btn-termin-h:hover { background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.6); color:#fff; }
+.btn-em {
+  display:flex; align-items:center; gap:8px;
+  background:var(--orange); color:#fff; border:none;
+  padding:9px 18px; border-radius:3px;
+  font-family:'DM Sans',sans-serif; font-size:.82rem; font-weight:500;
+  cursor:pointer; text-decoration:none; flex-shrink:0; white-space:nowrap;
+  letter-spacing:.03em; transition:background var(--T), transform var(--T), box-shadow var(--T);
+  animation:pls 3s infinite;
+}
+.btn-em:hover { background:var(--orange-h); transform:translateY(-1px); box-shadow:0 4px 18px rgba(200,114,58,.5); animation:none; }
+@keyframes pls { 0%,100%{box-shadow:0 0 0 0 rgba(200,114,58,.4)} 55%{box-shadow:0 0 0 9px rgba(200,114,58,0)} }
+.edot { width:7px; height:7px; border-radius:50%; background:#fff; animation:blk 1.4s infinite; flex-shrink:0; }
+@keyframes blk { 0%,100%{opacity:1} 50%{opacity:.25} }
 
-  /* HERO */
-  #hero{position:relative;height:100vh;min-height:680px;display:flex;align-items:flex-end;overflow:hidden}
-  .hbg{position:absolute;inset:0;background:linear-gradient(135deg,#0d1e2b 0%,#1a3a52 55%,#0d1e2b 100%)}
-  .hbg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 68% 48%,rgba(45,95,166,.18) 0%,transparent 55%),radial-gradient(ellipse at 25% 75%,rgba(200,114,58,.09) 0%,transparent 50%)}
-  .hphoto{position:absolute;right:0;top:0;bottom:0;width:52%;overflow:hidden}
-  .hphoto::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(to left,transparent 55%,#0d1e2b 100%),linear-gradient(to top,#0d1e2b 0%,transparent 28%)}
-  .hpi{width:100%;height:100%;background:linear-gradient(160deg,#1e3a52 0%,#243d54 50%,#1a3048 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:.4}
-  .phi{color:rgba(255,255,255,.22);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
-  .phl{width:60px;height:1px;background:rgba(255,255,255,.12)}
-  .hov{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,30,43,.96) 0%,rgba(13,30,43,.35) 55%,transparent 100%)}
-  .hc{position:relative;z-index:2;max-width:1440px;margin:0 auto;width:100%;padding:0 40px 80px;display:grid;grid-template-columns:1.1fr 0.9fr;align-items:end;gap:60px}
-  .hbadge{display:inline-flex;align-items:center;gap:8px;background:rgba(200,114,58,.13);border:1px solid rgba(200,114,58,.33);color:var(--orange);padding:5px 13px;border-radius:100px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500;margin-bottom:18px}
-  .bdot{width:5px;height:5px;border-radius:50%;background:var(--orange)}
-  h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,5.5vw,5rem);font-weight:300;color:#fff;line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
-  h1 strong{font-weight:600}
-  h1 em{font-style:normal;color:var(--orange)}
-  .hsub{color:rgba(255,255,255,.6);font-size:1rem;line-height:1.72;max-width:460px;margin-bottom:32px;font-weight:300}
-  .hact{display:flex;align-items:center;gap:14px}
-  .btn-p{display:inline-flex;align-items:center;gap:7px;background:var(--orange);color:#fff;padding:12px 28px;border-radius:3px;text-decoration:none;font-size:.87rem;font-weight:500;letter-spacing:.04em;border:2px solid var(--orange);transition:all var(--T)}
-  .btn-p:hover{background:var(--orange-h);border-color:var(--orange-h);transform:translateY(-2px);box-shadow:0 8px 22px rgba(200,114,58,.3)}
-  .btn-g{display:inline-flex;align-items:center;background:transparent;color:rgba(255,255,255,.82);padding:12px 28px;border-radius:3px;text-decoration:none;font-size:.87rem;letter-spacing:.04em;border:2px solid rgba(255,255,255,.28);transition:all var(--T)}
-  .btn-g:hover{border-color:#fff;color:#fff;transform:translateY(-2px)}
-  .hright{display:flex;align-items:flex-end;justify-content:flex-end}
-  .stat-row{display:flex;gap:12px}
-  .sc{background:rgba(255,255,255,.07);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:16px 22px;text-align:center}
-  .sn{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:#fff;line-height:1}
-  .sl{font-size:.65rem;color:rgba(255,255,255,.45);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
-  .hscroll{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.35);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;animation:bob 2.2s infinite}
-  @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(7px)}}
-  .sline{width:1px;height:36px;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.35))}
+/* ══════════════════════════════════════════════
+   HERO
+══════════════════════════════════════════════ */
+#hero {
+  position: relative; height: 100vh; min-height: 700px;
+  display: flex; align-items: flex-end; overflow: hidden;
+}
+.hbg {
+  position:absolute; inset:0;
+  background: linear-gradient(140deg, #0c1b27 0%, #1a3a52 60%, #0c1b27 100%);
+}
+.hbg::before {
+  content:''; position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse at 65% 45%, rgba(45,95,166,.2) 0%, transparent 52%),
+    radial-gradient(ellipse at 20% 80%, rgba(200,114,58,.1) 0%, transparent 45%);
+}
+.hphoto {
+  position:absolute; right:0; top:0; bottom:0; width:50%; overflow:hidden;
+}
+.hphoto::before {
+  content:''; position:absolute; inset:0; z-index:1;
+  background:
+    linear-gradient(to left, transparent 50%, #0c1b27 100%),
+    linear-gradient(to top, #0c1b27 0%, transparent 30%);
+}
+.hpi {
+  width:100%; height:100%;
+  background:linear-gradient(170deg, #1c3a52 0%, #233d54 55%, #182e42 100%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; opacity:.38;
+}
+.phi { color:rgba(255,255,255,.2); font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; }
+.phl { width:56px; height:1px; background:rgba(255,255,255,.12); }
+.hov {
+  position:absolute; inset:0;
+  background: linear-gradient(to top, rgba(12,27,39,.97) 0%, rgba(12,27,39,.3) 60%, transparent 100%);
+}
+.hc {
+  position:relative; z-index:2;
+  max-width:1440px; margin:0 auto; width:100%;
+  padding:0 40px 90px;
+  display:grid; grid-template-columns:1fr auto; align-items:end; gap:60px;
+}
+.hero-badge {
+  display:inline-flex; align-items:center; gap:8px;
+  background:rgba(200,114,58,.13); border:1px solid rgba(200,114,58,.32);
+  color:var(--orange); padding:5px 14px; border-radius:100px;
+  font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; font-weight:500; margin-bottom:20px;
+}
+.bdot { width:5px; height:5px; border-radius:50%; background:var(--orange); }
+.hero-h1 {
+  font-family:'Cormorant Garamond', serif;
+  font-size: clamp(3rem, 5.8vw, 5.4rem);
+  font-weight:300; color:#fff; line-height:1.04; letter-spacing:-.02em; margin-bottom:20px;
+}
+.hero-h1 strong { font-weight:600; }
+.hero-h1 em { font-style:normal; color:var(--orange); }
+.hero-sub {
+  color:rgba(255,255,255,.58); font-size:1.02rem; line-height:1.76;
+  max-width:500px; margin-bottom:36px; font-weight:300;
+}
+.hero-sub strong { color:rgba(255,255,255,.85); font-weight:500; }
+.hact { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
+.btn-p {
+  display:inline-flex; align-items:center; gap:8px;
+  background:var(--orange); color:#fff; padding:13px 30px; border-radius:3px;
+  text-decoration:none; font-size:.88rem; font-weight:500; letter-spacing:.04em;
+  border:2px solid var(--orange); transition:all var(--T);
+}
+.btn-p:hover { background:var(--orange-h); border-color:var(--orange-h); transform:translateY(-2px); box-shadow:0 8px 24px rgba(200,114,58,.35); }
+.btn-g {
+  display:inline-flex; align-items:center; gap:8px;
+  background:transparent; color:rgba(255,255,255,.8);
+  padding:13px 30px; border-radius:3px; text-decoration:none;
+  font-size:.88rem; letter-spacing:.04em;
+  border:2px solid rgba(255,255,255,.28); transition:all var(--T);
+}
+.btn-g:hover { border-color:#fff; color:#fff; transform:translateY(-2px); }
+.hero-stats {
+  display:flex; flex-direction:column; gap:10px; align-items:flex-end;
+}
+.sc { background:rgba(255,255,255,.07); backdrop-filter:blur(12px);
+  border:1px solid rgba(255,255,255,.1); border-radius:6px; padding:16px 24px; text-align:center; min-width:130px; }
+.sn { font-family:'Cormorant Garamond',serif; font-size:2.1rem; font-weight:600; color:#fff; line-height:1; }
+.sl { font-size:.62rem; color:rgba(255,255,255,.42); letter-spacing:.12em; text-transform:uppercase; margin-top:3px; }
+.hscroll {
+  position:absolute; bottom:28px; left:50%; transform:translateX(-50%);
+  z-index:2; display:flex; flex-direction:column; align-items:center; gap:6px;
+  color:rgba(255,255,255,.3); font-size:.63rem; letter-spacing:.14em; text-transform:uppercase;
+  animation:bob 2.4s infinite;
+}
+@keyframes bob { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(8px)} }
+.sline { width:1px; height:38px; background:linear-gradient(to bottom, transparent, rgba(255,255,255,.32)); }
 
-  /* TICKER */
-  #ticker{background:var(--gray);border-top:1px solid rgba(0,0,0,.06);border-bottom:1px solid rgba(0,0,0,.06);overflow:hidden}
-  .tw{display:flex;align-items:stretch}
-  .tlb{flex-shrink:0;padding:18px 28px;background:var(--navy);display:flex;align-items:center;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.45);white-space:nowrap;border-right:1px solid rgba(255,255,255,.08)}
-  .tt{flex:1;overflow:hidden;display:flex;align-items:center}
-  .ti{display:flex;align-items:center;gap:56px;animation:sl2 30s linear infinite;white-space:nowrap;padding:18px 0}
-  @keyframes sl2{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-  .titem{font-size:.8rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex-shrink:0}
-  .tsep{width:4px;height:4px;border-radius:50%;background:var(--orange);opacity:.5;flex-shrink:0}
+/* ══════════════════════════════════════════════
+   BRAND TICKER
+══════════════════════════════════════════════ */
+#ticker {
+  background: var(--navy-d);
+  border-top: 1px solid rgba(255,255,255,.06);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  overflow: hidden;
+}
+.tw { display:flex; align-items:stretch; }
+.tlb {
+  flex-shrink:0; padding:26px 36px;
+  background:rgba(255,255,255,.04);
+  display:flex; align-items:center;
+  font-size:.68rem; letter-spacing:.2em; text-transform:uppercase;
+  color:rgba(255,255,255,.35); white-space:nowrap;
+  border-right:1px solid rgba(255,255,255,.07);
+}
+.tt { flex:1; overflow:hidden; display:flex; align-items:center; }
+.ti {
+  display:flex; align-items:center; gap:76px;
+  animation:sl2 55s linear infinite;
+  white-space:nowrap; padding:26px 0;
+}
+.ti:hover { animation-play-state: paused; }
+@keyframes sl2 { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.tbrand {
+  flex-shrink:0; opacity:.45;
+  transition:opacity .3s;
+  display:flex; align-items:center;
+}
+.tbrand:hover { opacity:.85; }
+.tsep { width:4px; height:4px; border-radius:50%; background:var(--orange); opacity:.3; flex-shrink:0; }
 
-  /* BOOKING */
-  #termin{background:var(--navy);padding:0;border-bottom:1px solid rgba(255,255,255,.06)}
-  .bshell{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:320px 1fr;min-height:500px}
-  .bside{padding:50px 40px;border-right:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;justify-content:center}
-  .slabel{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;display:flex;align-items:center;gap:10px}
-  .slabel::after{content:'';flex:0 0 30px;height:1px;background:var(--orange)}
-  .bside h2{font-family:'Cormorant Garamond',serif;font-size:1.95rem;font-weight:400;color:#fff;line-height:1.12;margin-bottom:16px}
-  .bside h2 strong{font-weight:600}
-  .bside p{font-size:.86rem;color:rgba(255,255,255,.5);line-height:1.72;margin-bottom:24px;font-weight:300}
-  .sc2{display:flex;flex-direction:column;gap:9px}
-  .sr{display:flex;align-items:center;gap:10px;font-size:.83rem;color:rgba(255,255,255,.55)}
-  .sr a{color:rgba(255,255,255,.7);text-decoration:none;transition:color var(--T)}
-  .sr a:hover{color:var(--orange)}
-  .srdot{width:4px;height:4px;border-radius:50%;background:var(--orange);flex-shrink:0}
-  .bmain{padding:46px 56px;display:flex;flex-direction:column;justify-content:center}
-  .stepind{display:flex;align-items:center;gap:0;margin-bottom:34px}
-  .sdot{width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:rgba(255,255,255,.4);font-weight:500;transition:all .3s}
-  .sdot.act{border-color:var(--orange);color:#fff;background:var(--orange)}
-  .sdot.dn{border-color:var(--orange);color:var(--orange);background:rgba(200,114,58,.12)}
-  .sline2{flex:1;height:1px;background:rgba(255,255,255,.1);margin:0 8px;max-width:60px}
-  .slbl2{font-size:.72rem;color:rgba(255,255,255,.4);margin-left:10px;letter-spacing:.06em}
-  .slbl2.act{color:rgba(255,255,255,.7)}
-  .spanel{display:none}
-  .spanel.act{display:block}
-  .sg{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:26px}
-  .sb{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:14px 8px;text-align:center;cursor:pointer;transition:all var(--T);color:rgba(255,255,255,.7);font-size:.77rem;line-height:1.45;font-family:'DM Sans',sans-serif}
-  .sb:hover{border-color:rgba(200,114,58,.5);color:#fff;background:rgba(200,114,58,.08)}
-  .sb.sel{border-color:var(--orange);background:rgba(200,114,58,.14);color:#fff}
-  .sb-mark{width:18px;height:18px;border:1.5px solid currentColor;border-radius:2px;margin:0 auto 8px;opacity:.4;transition:all var(--T)}
-  .sb.sel .sb-mark{border-color:var(--orange);background:var(--orange);opacity:1}
-  .crow{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:start}
-  .mcal{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:16px;min-width:238px}
-  .mch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
-  .carro{background:none;border:1px solid rgba(255,255,255,.12);border-radius:3px;width:28px;height:28px;color:rgba(255,255,255,.6);cursor:pointer;font-size:.9rem;transition:all var(--T);display:flex;align-items:center;justify-content:center}
-  .carro:hover{background:var(--orange);border-color:var(--orange);color:#fff}
-  .cml{font-size:.85rem;font-weight:500;color:#fff}
-  .cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
-  .cdn{font-size:.62rem;text-align:center;color:rgba(255,255,255,.3);padding:3px 0;letter-spacing:.04em}
-  .cd{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:.75rem;border-radius:3px;cursor:pointer;color:rgba(255,255,255,.7);transition:all var(--T)}
-  .cd:hover:not(.off):not(.emp){background:var(--orange);color:#fff}
-  .cd.sel{background:var(--orange);color:#fff;font-weight:500}
-  .cd.tod{outline:1px solid var(--orange);color:var(--orange)}
-  .cd.off{color:rgba(255,255,255,.2);cursor:default}
-  .tpanel{}
-  .tp-title{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.42);margin-bottom:8px}
-  .tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:14px}
-  .ts{padding:7px 4px;text-align:center;font-size:.78rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:3px;cursor:pointer;color:rgba(255,255,255,.7);transition:all var(--T)}
-  .ts:hover{border-color:var(--orange);color:#fff}
-  .ts.sel{background:var(--orange);color:#fff;border-color:var(--orange)}
-  .ts.na{color:rgba(255,255,255,.2);cursor:not-allowed;text-decoration:line-through}
-  .snav{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:26px}
-  .btn-nx,.btn-bk,.btn-sub{padding:11px 26px;border-radius:3px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;letter-spacing:.04em;transition:all var(--T)}
-  .btn-nx,.btn-sub{background:var(--orange);color:#fff}
-  .btn-nx:hover,.btn-sub:hover{background:var(--orange-h);transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,114,58,.35)}
-  .btn-bk{background:rgba(255,255,255,.07);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.12)}
-  .btn-bk:hover{background:rgba(255,255,255,.12);color:#fff}
-  .cgrid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
-  .fg{display:flex;flex-direction:column;gap:5px}
-  .fg.full{grid-column:1/-1}
-  .fg label{font-size:.72rem;letter-spacing:.06em;color:rgba(255,255,255,.52)}
-  .fg label span{color:var(--orange)}
-  .fc{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);border-radius:3px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:.87rem;color:#fff;transition:border-color var(--T),background var(--T);-webkit-appearance:none}
-  .fc::placeholder{color:rgba(255,255,255,.25)}
-  .fc:focus{outline:none;border-color:var(--orange);background:rgba(255,255,255,.1)}
-  .fc option{background:var(--navy)}
-  .drow{display:flex;align-items:flex-start;gap:9px;margin-top:2px}
-  .drow input{margin-top:2px;accent-color:var(--orange);flex-shrink:0}
-  .drow label{font-size:.72rem;color:rgba(255,255,255,.42);line-height:1.55}
-  .drow a{color:var(--orange);text-decoration:none}
-  .sum-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
-  .stag{background:rgba(200,114,58,.14);border:1px solid rgba(200,114,58,.3);color:var(--orange);font-size:.73rem;padding:4px 12px;border-radius:100px}
+/* ══════════════════════════════════════════════
+   BOOKING — redesigned for clarity & contrast
+══════════════════════════════════════════════ */
+#termin { background:#e8e4de; padding:90px 40px; }
+.termin-inner { max-width:1440px; margin:0 auto; }
+.termin-head { text-align:center; margin-bottom:56px; }
+.termin-head .lbl { justify-content:center; }
+.termin-head .lbl::after { display:none; }
+.termin-head .stitle { color:var(--navy); }
+.termin-head p { color:var(--muted); font-size:.96rem; line-height:1.75; margin-top:12px; font-weight:300; }
 
-  /* SECTIONS */
-  section{padding:88px 40px}
-  .inner{max-width:1440px;margin:0 auto}
-  .lbl{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:10px}
-  .lbl::after{content:'';flex:0 0 34px;height:1px;background:var(--orange)}
-  .stitle{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3.5vw,3rem);font-weight:400;line-height:1.1;color:var(--navy);margin-bottom:13px}
-  .stitle strong{font-weight:600}
-  .sdesc{color:var(--muted);font-size:.95rem;line-height:1.75;font-weight:300}
+.bk-shell {
+  display:grid; grid-template-columns:1fr 1.45fr; gap:0;
+  background:#fff;
+  border-radius:6px; overflow:hidden;
+  box-shadow:0 12px 56px rgba(26,44,61,.18), 0 2px 16px rgba(26,44,61,.1);
+  border:1.5px solid rgba(200,114,58,.28);
+  outline: 4px solid rgba(200,114,58,.07);
+}
+/* Left info panel */
+.bk-info {
+  background:var(--navy); padding:52px 44px;
+  display:flex; flex-direction:column; justify-content:space-between; gap:32px;
+}
+.bk-info-top { }
+.bk-info .slabel { color:var(--orange); font-size:.67rem; letter-spacing:.22em; text-transform:uppercase; margin-bottom:14px; display:flex; align-items:center; gap:10px; }
+.bk-info .slabel::after { content:''; flex:0 0 28px; height:1px; background:var(--orange); }
+.bk-info h2 { font-family:'Cormorant Garamond',serif; font-size:2.1rem; font-weight:400; color:#fff; line-height:1.12; margin-bottom:16px; }
+.bk-info h2 strong { font-weight:600; }
+.bk-info p { font-size:.87rem; color:rgba(255,255,255,.52); line-height:1.76; font-weight:300; }
+.bk-contact { display:flex; flex-direction:column; gap:14px; }
+.bk-cr { display:flex; align-items:flex-start; gap:12px; }
+.bk-cr-icon { width:32px; height:32px; background:rgba(200,114,58,.18); border:1px solid rgba(200,114,58,.25); border-radius:4px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.bk-cr-icon svg { width:14px; height:14px; stroke:var(--orange); fill:none; stroke-width:1.8; }
+.bk-cr-text { }
+.bk-cr-label { font-size:.65rem; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.35); margin-bottom:2px; }
+.bk-cr-val { font-size:.88rem; color:rgba(255,255,255,.75); }
+.bk-cr-val a { color:rgba(255,255,255,.75); text-decoration:none; transition:color var(--T); }
+.bk-cr-val a:hover { color:var(--orange); }
+.bk-guarantee { margin-top:8px; padding-top:20px; border-top:1px solid rgba(255,255,255,.08); display:flex; flex-direction:column; gap:8px; }
+.bk-guar-item { display:flex; align-items:center; gap:10px; font-size:.8rem; color:rgba(255,255,255,.5); }
+.bk-guar-item::before { content:''; width:16px; height:16px; border:1px solid rgba(200,114,58,.4); border-radius:3px; flex-shrink:0; background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath stroke='%23c8723a' stroke-width='1.8' fill='none' d='M3 8l3 3 7-7'/%3E%3C/svg%3E") center/cover; }
 
-  /* LEISTUNGEN */
-  #leistungen{background:var(--white)}
-  .svc-out{display:grid;grid-template-columns:268px 1fr;gap:68px;align-items:start}
-  .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
-  .svc{background:var(--gray);padding:30px 26px;position:relative;overflow:hidden;transition:all var(--T)}
-  .svc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--orange);transform:scaleY(0);transition:transform .3s;transform-origin:bottom}
-  .svc:hover{background:var(--navy)}
-  .svc:hover::before{transform:scaleY(1)}
-  .svc:hover .svct{color:#fff}
-  .svc:hover .svcd{color:rgba(255,255,255,.52)}
-  .svc:hover .svcn{color:rgba(255,255,255,.07)}
-  .svcn{font-family:'Cormorant Garamond',serif;font-size:2.7rem;font-weight:300;color:rgba(0,0,0,.07);line-height:1;margin-bottom:-4px}
-  .svcl{width:22px;height:1.5px;background:var(--orange);margin-bottom:12px}
-  .svct{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--navy);margin-bottom:7px;transition:color var(--T)}
-  .svcd{font-size:.81rem;color:var(--muted);line-height:1.65;transition:color var(--T)}
-  .svc.last{grid-column:1/-1;display:grid;grid-template-columns:auto 1fr;gap:0 70px}
-  .svc.last .svcd{grid-column:2;grid-row:1/-1;padding-top:0;align-self:center}
+/* Right form panel */
+.bk-form-panel { padding:52px 48px; background:#fff; border-left:1px solid rgba(200,114,58,.12); }
+/* Step indicator */
+.bk-steps { display:flex; align-items:center; gap:0; margin-bottom:36px; }
+.bk-step-item { display:flex; align-items:center; gap:10px; }
+.bk-step-num {
+  width:30px; height:30px; border-radius:50%;
+  border:1.5px solid var(--gray); background:var(--cream);
+  display:flex; align-items:center; justify-content:center;
+  font-size:.75rem; font-weight:600; color:var(--muted);
+  transition:all .3s; flex-shrink:0;
+}
+.bk-step-num.act { border-color:var(--orange); background:var(--orange); color:#fff; }
+.bk-step-num.dn { border-color:var(--orange); background:#fff; color:var(--orange); }
+.bk-step-label { font-size:.75rem; color:var(--muted); font-weight:400; white-space:nowrap; }
+.bk-step-label.act { color:var(--navy); font-weight:500; }
+.bk-step-conn { flex:1; height:1px; background:var(--gray); margin:0 12px; max-width:48px; }
 
-  /* REFERENZEN */
-  #referenzen{background:var(--navy);position:relative;overflow:hidden}
-  #referenzen::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 60%,rgba(45,95,166,.12) 0%,transparent 55%)}
-  #referenzen .stitle{color:#fff}
-  #referenzen .lbl{color:var(--orange)}
-  #referenzen .sdesc{color:rgba(255,255,255,.48)}
-  .ref-out{display:grid;grid-template-columns:260px 1fr;gap:68px;align-items:start}
-  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-  .pc{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:3px;overflow:hidden;transition:all var(--T)}
-  .pc:hover{transform:translateY(-4px);border-color:rgba(200,114,58,.35)}
-  .pimg{height:172px;background:linear-gradient(135deg,#243648 0%,#1a2c3d 100%);position:relative;display:flex;align-items:center;justify-content:center}
-  .picon{width:36px;height:36px;border:1px solid rgba(255,255,255,.14);border-radius:50%;opacity:.28}
-  .pimg::after{content:'Foto folgt';position:absolute;bottom:8px;right:10px;font-size:.6rem;color:rgba(255,255,255,.18);letter-spacing:.08em;text-transform:uppercase}
-  .pi{padding:18px}
-  .pt{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--orange);margin-bottom:5px}
-  .pti{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:#fff;margin-bottom:5px}
-  .pl{font-size:.77rem;color:rgba(255,255,255,.36)}
+/* Step panels */
+.bk-panel { display:none; }
+.bk-panel.act { display:block; }
 
-  /* BEWERTUNGEN */
-  #bewertungen{background:var(--gray)}
-  .rev-out{display:grid;grid-template-columns:260px 1fr;gap:68px;align-items:start}
-  .gb{display:flex;align-items:center;gap:12px;margin-top:26px;background:#fff;padding:14px 18px;border-radius:4px;box-shadow:0 4px 18px rgba(0,0,0,.07)}
-  .glo{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:var(--navy)}
-  .gs{font-family:'Cormorant Garamond',serif;font-size:1.85rem;font-weight:600;color:var(--navy);line-height:1}
-  .gst{color:#e8b84b;font-size:.88rem}
-  .gc{font-size:.72rem;color:var(--muted);margin-top:2px}
-  .rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-  .rc{background:#fff;padding:24px;border-radius:3px;box-shadow:0 4px 16px rgba(0,0,0,.05);transition:all var(--T);border-top:2px solid transparent}
-  .rc:hover{transform:translateY(-3px);border-top-color:var(--orange);box-shadow:0 8px 26px rgba(0,0,0,.1)}
-  .rst{color:#e8b84b;font-size:.85rem;margin-bottom:10px}
-  .rtx{font-size:.87rem;color:var(--muted);line-height:1.72;font-style:italic;margin-bottom:16px;font-weight:300}
-  .rau{display:flex;align-items:center;gap:10px}
-  .rav{width:34px;height:34px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:#fff;flex-shrink:0}
-  .rn{font-size:.82rem;font-weight:500;color:var(--navy)}
-  .rd{font-size:.72rem;color:var(--muted)}
+/* Service selector */
+.bk-svc-wrap {
+  background:#f0ede8; border-radius:6px; padding:16px;
+  margin-bottom:22px; border:1px solid var(--gray);
+}
+.bk-svc-label { font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; font-weight:500; }
+.bk-svc-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.bk-svc-btn {
+  background:#fff; border:1.5px solid #ddd8d0;
+  border-radius:5px; padding:14px 14px 12px; text-align:left; cursor:pointer;
+  transition:all var(--T); font-family:'DM Sans',sans-serif;
+  display:flex; flex-direction:column; gap:3px;
+  box-shadow:0 1px 3px rgba(26,44,61,.06);
+}
+.bk-svc-btn:hover { border-color:var(--orange); background:#fff; box-shadow:0 3px 14px rgba(200,114,58,.14); transform:translateY(-1px); }
+.bk-svc-btn.sel { border-color:var(--orange); background:rgba(200,114,58,.06); box-shadow:0 3px 14px rgba(200,114,58,.18); }
+.bk-svc-btn .bsb-name { font-size:.86rem; font-weight:500; color:var(--navy); }
+.bk-svc-btn .bsb-hint { font-size:.73rem; color:var(--muted); font-weight:300; line-height:1.4; }
+.bk-svc-btn .bsb-check { width:16px; height:16px; border-radius:50%; border:1.5px solid #ccc; margin-left:auto; flex-shrink:0; transition:all var(--T); }
+.bk-svc-btn.sel .bsb-check { border-color:var(--orange); background:var(--orange); }
+.bk-svc-head { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
 
-  /* ÜBER UNS */
-  #ueber{background:var(--white);overflow:hidden}
-  .ue-out{display:grid;grid-template-columns:1fr 1fr;gap:68px;align-items:center}
-  .umap{height:420px;background:var(--gray);border-radius:3px;overflow:hidden}
-  .umap svg{width:100%;height:100%}
-  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(0,0,0,.08);margin-top:26px}
-  .kpi{background:var(--white);padding:18px;text-align:center}
-  .kpin{font-family:'Cormorant Garamond',serif;font-size:1.95rem;font-weight:600;color:var(--orange)}
-  .kpil{font-size:.7rem;color:var(--muted);margin-top:3px;letter-spacing:.04em}
+/* Calendar */
+.bk-cal-row { display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start; }
+.bk-cal-wrap { }
+.bk-cal-title { font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; font-weight:500; }
+.cal-card { background:var(--cream); border:1px solid var(--gray); border-radius:5px; padding:16px; }
+.cal-hdr { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.cal-nav-btn { background:none; border:1px solid var(--gray); border-radius:3px; width:30px; height:30px; cursor:pointer; font-size:.9rem; color:var(--navy); display:flex; align-items:center; justify-content:center; transition:all var(--T); }
+.cal-nav-btn:hover { background:var(--navy); border-color:var(--navy); color:#fff; }
+.cal-month-lbl { font-size:.88rem; font-weight:500; color:var(--navy); }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.cal-dn { font-size:.6rem; text-align:center; color:var(--muted); padding:3px 0; letter-spacing:.05em; text-transform:uppercase; }
+.cal-d {
+  aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+  font-size:.78rem; border-radius:4px; cursor:pointer;
+  color:var(--navy); transition:all var(--T); font-weight:400;
+}
+.cal-d:hover:not(.off):not(.emp) { background:var(--orange); color:#fff; }
+.cal-d.sel { background:var(--orange); color:#fff; font-weight:600; }
+.cal-d.tod { outline:1.5px solid var(--orange); color:var(--orange); font-weight:500; }
+.cal-d.off { color:var(--gray); cursor:default; }
+/* Time slots */
+.bk-time-title { font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-bottom:10px; font-weight:500; }
+.bk-time-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.t-slot {
+  padding:10px 8px; text-align:center; font-size:.8rem; font-weight:500;
+  background:var(--cream); border:1.5px solid var(--gray); border-radius:4px;
+  cursor:pointer; color:var(--navy); transition:all var(--T);
+}
+.t-slot:hover { border-color:var(--orange); color:var(--orange); background:#fff; }
+.t-slot.sel { background:var(--orange); color:#fff; border-color:var(--orange); }
+.t-slot.na { color:var(--gray); cursor:not-allowed; text-decoration:line-through; background:var(--cream); border-color:var(--gray); }
 
-  /* KONTAKT */
-  #kontakt{background:var(--navy);position:relative;overflow:hidden}
-  #kontakt::after{content:'';position:absolute;bottom:-100px;right:-80px;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle,rgba(45,95,166,.14) 0%,transparent 70%)}
-  #kontakt .stitle{color:#fff}
-  #kontakt .lbl{color:var(--orange)}
-  .ko{display:grid;grid-template-columns:1fr 1.6fr;gap:78px;align-items:start;margin-top:48px}
-  .kinf{display:flex;flex-direction:column;gap:20px}
-  .kr{}.krl{font-size:.67rem;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin-bottom:3px}
-  .krv{font-size:.9rem;color:rgba(255,255,255,.72);line-height:1.55}
-  .krv a{color:rgba(255,255,255,.72);text-decoration:none;transition:color var(--T)}
-  .krv a:hover{color:var(--orange)}
-  .kdiv{height:1px;background:rgba(255,255,255,.07)}
-  .kem{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;border:none;padding:10px 20px;border-radius:3px;cursor:pointer;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;transition:all var(--T)}
-  .kem:hover{background:var(--orange-h);transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,114,58,.4)}
-  .kform{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:36px;border-radius:3px;border-top:2px solid var(--blue);position:relative;z-index:1}
-  .kform h3{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:#fff;margin-bottom:22px}
-  .kform .fc{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12)}
-  .kform .fg label{color:rgba(255,255,255,.52)}
-  .btn-snd{width:100%;padding:13px;background:var(--orange);color:#fff;border:none;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:.87rem;font-weight:500;cursor:pointer;letter-spacing:.04em;transition:all var(--T);margin-top:4px}
-  .btn-snd:hover{background:var(--orange-h);transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,114,58,.38)}
+/* Contact form */
+.bk-contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.fg { display:flex; flex-direction:column; gap:6px; }
+.fg.full { grid-column:1/-1; }
+.fg label { font-size:.72rem; letter-spacing:.06em; color:var(--muted); font-weight:500; text-transform:uppercase; }
+.fg label span { color:var(--orange); }
+.fc {
+  background:#fff; border:1.5px solid var(--gray); border-radius:4px;
+  padding:11px 14px; font-family:'DM Sans',sans-serif; font-size:.88rem; color:var(--navy);
+  transition:border-color var(--T), box-shadow var(--T); -webkit-appearance:none;
+}
+.fc::placeholder { color:rgba(107,120,133,.45); }
+.fc:focus { outline:none; border-color:var(--orange); box-shadow:0 0 0 3px rgba(200,114,58,.1); }
+.fc option { background:#fff; }
+.drow { display:flex; align-items:flex-start; gap:10px; margin-top:4px; }
+.drow input { margin-top:3px; accent-color:var(--orange); flex-shrink:0; width:15px; height:15px; }
+.drow label { font-size:.73rem; color:var(--muted); line-height:1.58; text-transform:none; font-weight:300; letter-spacing:0; }
+.drow a { color:var(--orange); text-decoration:none; }
+/* Step summary tags */
+.sum-tags { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px; }
+.stag { background:rgba(200,114,58,.1); border:1px solid rgba(200,114,58,.3); color:var(--orange); font-size:.75rem; padding:4px 13px; border-radius:100px; font-weight:500; }
 
-  /* FOOTER */
-  footer{background:#0c1c28;padding:30px 40px;border-top:1px solid rgba(255,255,255,.05)}
-  .fi{max-width:1440px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
-  .fc2{font-size:.77rem;color:rgba(255,255,255,.28)}
-  .fls{display:flex;gap:22px}
-  .fls a{font-size:.77rem;color:rgba(255,255,255,.32);text-decoration:none;transition:color var(--T)}
-  .fls a:hover{color:var(--orange)}
+/* Navigation buttons */
+.bk-nav { display:flex; align-items:center; justify-content:space-between; margin-top:26px; gap:12px; }
+.bk-nav-right { display:flex; gap:12px; }
+.btn-nx { background:var(--orange); color:#fff; border:none; padding:12px 30px; border-radius:3px; font-family:'DM Sans',sans-serif; font-size:.87rem; font-weight:500; cursor:pointer; letter-spacing:.04em; transition:all var(--T); }
+.btn-nx:hover { background:var(--orange-h); transform:translateY(-1px); box-shadow:0 4px 16px rgba(200,114,58,.35); }
+.btn-bk2 { background:transparent; color:var(--muted); border:1.5px solid var(--gray); padding:12px 22px; border-radius:3px; font-family:'DM Sans',sans-serif; font-size:.87rem; cursor:pointer; transition:all var(--T); }
+.btn-bk2:hover { border-color:var(--navy); color:var(--navy); }
+.btn-sub { background:var(--blue); color:#fff; border:none; padding:12px 30px; border-radius:3px; font-family:'DM Sans',sans-serif; font-size:.87rem; font-weight:500; cursor:pointer; letter-spacing:.04em; transition:all var(--T); }
+.btn-sub:hover { background:var(--blue-h); transform:translateY(-1px); box-shadow:0 4px 16px rgba(45,95,166,.35); }
 
-  /* MODAL */
-  .mbg{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:9990;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .3s}
-  .mbg.open{opacity:1;visibility:visible}
-  .mbox{background:#fff;border-radius:4px;padding:42px;max-width:420px;width:90%;text-align:center;transform:translateY(16px);transition:transform .3s;border-top:3px solid var(--orange)}
-  .mbg.open .mbox{transform:translateY(0)}
-  .mtt{font-family:'Cormorant Garamond',serif;font-size:1.7rem;color:var(--navy);margin-bottom:10px}
-  .mtx{font-size:.88rem;color:var(--muted);line-height:1.65;margin-bottom:22px}
-  .btn-mc{background:var(--orange);color:#fff;border:none;padding:10px 28px;border-radius:3px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;transition:background var(--T)}
-  .btn-mc:hover{background:var(--orange-h)}
+/* ══════════════════════════════════════════════
+   SECTION COMMONS
+══════════════════════════════════════════════ */
+section { padding:96px 40px; }
+.inner { max-width:1440px; margin:0 auto; }
+.lbl {
+  font-size:.67rem; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--orange); font-weight:500; margin-bottom:10px;
+  display:flex; align-items:center; gap:10px;
+}
+.lbl::after { content:''; flex:0 0 34px; height:1px; background:var(--orange); }
+.stitle {
+  font-family:'Cormorant Garamond', serif;
+  font-size:clamp(2rem, 3.8vw, 3.2rem); font-weight:400;
+  line-height:1.08; color:var(--navy); margin-bottom:14px;
+}
+.stitle strong { font-weight:600; }
+.stitle em { font-style:italic; color:var(--orange); }
+.sdesc { color:var(--muted); font-size:.96rem; line-height:1.78; font-weight:300; }
 
-  /* RESPONSIVE */
-  @media(max-width:1100px){
-    .bshell,.svc-out,.ref-out,.rev-out,.ue-out,.ko{grid-template-columns:1fr}
-    .bside{border-right:none;border-bottom:1px solid rgba(255,255,255,.07)}
-    .sg{grid-template-columns:repeat(3,1fr)}
-    .svc-grid{grid-template-columns:1fr 1fr}
-    .pgrid,.rgrid{grid-template-columns:1fr 1fr}
-    .kpis{grid-template-columns:1fr 1fr}
-    .hc{grid-template-columns:1fr}
-    .hright{justify-content:flex-start}
-  }
-  @media(max-width:768px){
-    .hi{padding:0 18px}
-    nav{display:none}
-    section{padding:56px 20px}
-    .bmain{padding:28px 20px}
-    .bside{padding:28px 20px 20px}
-    .sg{grid-template-columns:1fr 1fr}
-    .pgrid,.rgrid,.svc-grid{grid-template-columns:1fr}
-    .crow{grid-template-columns:1fr}
-    .cgrid2{grid-template-columns:1fr}
-    .hc{padding:0 20px 56px}
-    .lt{display:none}
-    #ck{flex-direction:column;padding:14px 18px}
-    .fi{flex-direction:column;align-items:flex-start}
-    .stat-row{flex-wrap:wrap}
-  }
+/* ══════════════════════════════════════════════
+   LEISTUNGEN — full width, generous
+══════════════════════════════════════════════ */
+/* ── LEISTUNGEN header key points */
+.svc-keypoints { display:flex; flex-direction:column; gap:14px; margin-bottom:28px; }
+.svc-kp { display:flex; align-items:flex-start; gap:14px; }
+.svc-kp-dot { width:8px; height:8px; border-radius:50%; background:var(--orange); flex-shrink:0; margin-top:5px; }
+.svc-kp-body { }
+.svc-kp-title { font-size:.88rem; font-weight:500; color:var(--navy); margin-bottom:2px; }
+.svc-kp-text { font-size:.82rem; color:var(--muted); line-height:1.6; font-weight:300; }
+/* ── SERVICE CARD additional detail list */
+.svc-points { margin-top:16px; display:flex; flex-direction:column; gap:6px; padding-top:14px; border-top:1px solid rgba(26,44,61,.08); transition:border-color var(--T); }
+.svc-card:hover .svc-points { border-top-color:rgba(255,255,255,.1); }
+.svc-point { display:flex; align-items:flex-start; gap:8px; font-size:.78rem; color:var(--muted); line-height:1.5; font-weight:300; transition:color var(--T); }
+.svc-card:hover .svc-point { color:rgba(255,255,255,.45); }
+.svc-point::before { content:''; width:4px; height:4px; border-radius:50%; background:var(--orange); flex-shrink:0; margin-top:5px; opacity:.7; }
+.svc-head { max-width:700px; margin-bottom:64px; }
+/* 3-col top row + 2-col centered bottom */
+.svc-grid-top { display:grid; grid-template-columns:repeat(3,1fr); gap:2px; margin-bottom:2px; }
+.svc-grid-bot { display:grid; grid-template-columns:1fr 1fr; gap:2px; }
+.svc-card {
+  background:var(--cream); padding:44px 40px;
+  position:relative; overflow:hidden; cursor:default;
+  transition:background var(--T), box-shadow var(--T);
+}
+.svc-card::before {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+  background:var(--orange); transform:scaleX(0); transition:transform .35s ease;
+  transform-origin:left;
+}
+.svc-card:hover { background:var(--navy); box-shadow:inset 0 0 0 1px rgba(200,114,58,.2); }
+.svc-card:hover::before { transform:scaleX(1); }
+.svc-card:hover .svc-num { color:rgba(255,255,255,.06); }
+.svc-card:hover .svc-title { color:#fff; }
+.svc-card:hover .svc-desc { color:rgba(255,255,255,.5); }
+.svc-card:hover .svc-line { background:var(--orange); }
+.svc-card:hover .svc-tag { color:rgba(200,114,58,.7); }
+.svc-num { font-family:'Cormorant Garamond',serif; font-size:3.2rem; font-weight:300; color:rgba(26,44,61,.07); line-height:1; margin-bottom:-6px; }
+.svc-line { width:24px; height:1.5px; background:var(--orange); margin-bottom:16px; transition:background var(--T); }
+.svc-tag { font-size:.63rem; letter-spacing:.16em; text-transform:uppercase; color:var(--orange); margin-bottom:8px; font-weight:500; transition:color var(--T); }
+.svc-title { font-family:'Cormorant Garamond',serif; font-size:1.35rem; font-weight:600; color:var(--navy); margin-bottom:12px; transition:color var(--T); }
+.svc-desc { font-size:.85rem; color:var(--muted); line-height:1.72; font-weight:300; transition:color var(--T); }
+.svc-grid-bot .svc-card { padding:44px 52px; }
+
+/* ══════════════════════════════════════════════
+   REFERENZEN — full width
+══════════════════════════════════════════════ */
+#referenzen { background:var(--navy); position:relative; overflow:hidden; }
+#referenzen::before {
+  content:''; position:absolute; inset:0;
+  background:radial-gradient(ellipse at 85% 55%, rgba(45,95,166,.14) 0%, transparent 50%);
+}
+#referenzen .stitle { color:#fff; }
+#referenzen .lbl { color:var(--orange); }
+#referenzen .sdesc { color:rgba(255,255,255,.48); }
+.ref-head { max-width:640px; margin-bottom:56px; }
+.proj-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.proj-card {
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+  border-radius:4px; overflow:hidden; transition:all var(--T);
+}
+.proj-card:hover { transform:translateY(-5px); border-color:rgba(200,114,58,.4); background:rgba(255,255,255,.07); }
+.proj-img {
+  height:200px; background:linear-gradient(135deg,#243648 0%,#1a2c3d 100%);
+  position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center;
+}
+.proj-img-inner { width:48px; height:48px; border:1px solid rgba(255,255,255,.12); border-radius:50%; opacity:.22; }
+.proj-img::after { content:'Foto folgt'; position:absolute; bottom:10px; right:12px; font-size:.6rem; color:rgba(255,255,255,.18); letter-spacing:.1em; text-transform:uppercase; }
+.proj-img .proj-cat-badge {
+  position:absolute; top:14px; left:14px;
+  background:rgba(200,114,58,.9); color:#fff;
+  font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; padding:4px 10px; border-radius:2px; font-weight:500;
+}
+.proj-body { padding:22px 24px; }
+.proj-tag { font-size:.62rem; letter-spacing:.15em; text-transform:uppercase; color:var(--orange); margin-bottom:7px; }
+.proj-title { font-family:'Cormorant Garamond',serif; font-size:1.18rem; font-weight:600; color:#fff; margin-bottom:7px; line-height:1.25; }
+.proj-loc { font-size:.78rem; color:rgba(255,255,255,.38); display:flex; align-items:center; gap:6px; }
+.proj-loc::before { content:''; width:4px; height:4px; border-radius:50%; background:var(--orange); flex-shrink:0; opacity:.6; }
+
+/* ══════════════════════════════════════════════
+   BEWERTUNGEN — detailed
+══════════════════════════════════════════════ */
+#bewertungen { background:var(--cream); }
+.rev-head { display:grid; grid-template-columns:1fr auto; align-items:end; margin-bottom:56px; gap:24px; }
+.g-badge {
+  display:flex; align-items:center; gap:16px;
+  background:#fff; padding:18px 24px; border-radius:5px;
+  box-shadow:0 4px 20px rgba(0,0,0,.07); border:1px solid var(--gray);
+  flex-shrink:0;
+}
+.g-logo-txt { font-family:'Cormorant Garamond',serif; font-size:1.6rem; font-weight:700; color:var(--navy); }
+.g-score { font-family:'Cormorant Garamond',serif; font-size:1.95rem; font-weight:600; color:var(--navy); line-height:1; }
+.g-stars { color:#e8b84b; font-size:.9rem; letter-spacing:.05em; }
+.g-count { font-size:.72rem; color:var(--muted); margin-top:3px; }
+.rev-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.rev-card {
+  background:#fff; padding:30px 28px; border-radius:4px;
+  box-shadow:0 4px 18px rgba(0,0,0,.06);
+  transition:all var(--T); border-top:2px solid transparent;
+  display:flex; flex-direction:column; gap:16px;
+}
+.rev-card:hover { transform:translateY(-4px); border-top-color:var(--orange); box-shadow:0 10px 32px rgba(0,0,0,.1); }
+.rev-stars { color:#e8b84b; font-size:.88rem; letter-spacing:.05em; }
+.rev-text {
+  font-size:.9rem; color:#3a4a56; line-height:1.8;
+  font-style:italic; font-weight:300; flex:1;
+}
+.rev-text strong { font-style:normal; font-weight:500; color:var(--navy); }
+.rev-divider { height:1px; background:var(--gray); }
+.rev-author { display:flex; align-items:center; gap:12px; }
+.rev-av { width:38px; height:38px; border-radius:50%; background:var(--navy); display:flex; align-items:center; justify-content:center; font-size:.78rem; font-weight:600; color:#fff; flex-shrink:0; }
+.rev-name { font-size:.83rem; font-weight:500; color:var(--navy); }
+.rev-meta { font-size:.72rem; color:var(--muted); }
+
+/* ── Leaflet map tooltip */
+.ka-tooltip {
+  background: #fff !important;
+  border: 1px solid #e8e4de !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 16px rgba(26,44,61,.12) !important;
+  padding: 7px 12px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  white-space: nowrap;
+}
+.ka-tooltip::before { display:none !important; }
+.leaflet-container { font-family: 'DM Sans', sans-serif; }
+
+/* ══════════════════════════════════════════════
+   ÜBER UNS — company + David personal
+══════════════════════════════════════════════ */
+#ueber { background:var(--white); }
+/* Company part */
+.ue-top { display:grid; grid-template-columns:1fr 1fr; gap:72px; align-items:center; margin-bottom:72px; }
+.umap { height:370px; background:var(--cream); border-radius:4px; overflow:hidden; border:1px solid var(--gray); }
+.umap svg { display:none; }
+.kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--gray); margin-top:28px; border:1px solid var(--gray); }
+.kpi { background:var(--white); padding:20px; text-align:center; }
+.kpin { font-family:'Cormorant Garamond',serif; font-size:2rem; font-weight:600; color:var(--orange); }
+.kpil { font-size:.7rem; color:var(--muted); margin-top:3px; letter-spacing:.05em; }
+/* David personal section */
+.david-section { border-top:1px solid var(--gray); padding-top:72px; }
+.david-inner { display:grid; grid-template-columns:380px 1fr; gap:64px; align-items:start; }
+.david-portrait {
+  background:var(--navy); border-radius:4px; overflow:hidden;
+  position:relative; aspect-ratio:3/4; max-height:480px;
+  display:flex; flex-direction:column; justify-content:flex-end;
+}
+.david-portrait-bg {
+  position:absolute; inset:0;
+  background:linear-gradient(160deg, #1a3a52 0%, #0f2030 100%);
+  display:flex; align-items:center; justify-content:center; flex-direction:column; gap:10px; opacity:.5;
+}
+.david-photo-hint { color:rgba(255,255,255,.2); font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; }
+.david-photo-line { width:50px; height:1px; background:rgba(255,255,255,.12); }
+.david-nameplate {
+  position:relative; z-index:1; padding:24px 28px;
+  background:linear-gradient(to top, rgba(12,28,40,.97) 0%, transparent 100%);
+}
+.david-nameplate-name { font-family:'Cormorant Garamond',serif; font-size:1.4rem; font-weight:600; color:#fff; }
+.david-nameplate-title { font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:var(--orange); margin-top:3px; }
+.david-content { padding-top:8px; }
+.david-content .lbl { margin-bottom:12px; }
+.david-content .stitle { font-size:clamp(1.7rem,3vw,2.5rem); margin-bottom:18px; }
+.david-quote {
+  background:var(--cream); border-left:3px solid var(--orange);
+  padding:20px 24px; border-radius:0 4px 4px 0; margin-bottom:28px;
+}
+.david-quote p { font-family:'Cormorant Garamond',serif; font-size:1.08rem; font-style:italic; color:var(--navy); line-height:1.7; font-weight:400; }
+.david-bio { font-size:.92rem; color:var(--muted); line-height:1.82; font-weight:300; margin-bottom:24px; }
+.david-bio strong { color:var(--navy); font-weight:500; }
+.david-vals { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:20px; }
+.david-val { display:flex; align-items:flex-start; gap:10px; }
+.dv-dot { width:6px; height:6px; border-radius:50%; background:var(--orange); flex-shrink:0; margin-top:6px; }
+.dv-text { font-size:.84rem; color:var(--navy); font-weight:400; line-height:1.4; }
+.dv-text span { display:block; font-size:.75rem; color:var(--muted); font-weight:300; margin-top:1px; }
+
+/* ══════════════════════════════════════════════
+   KONTAKT
+══════════════════════════════════════════════ */
+#kontakt { background:var(--navy); position:relative; overflow:hidden; }
+#kontakt::after { content:''; position:absolute; bottom:-120px; right:-100px; width:480px; height:480px; border-radius:50%; background:radial-gradient(circle,rgba(45,95,166,.14) 0%,transparent 70%); }
+#kontakt .stitle { color:#fff; }
+#kontakt .lbl { color:var(--orange); }
+.ko { display:grid; grid-template-columns:1fr 1.65fr; gap:80px; align-items:start; margin-top:52px; }
+.kinf { display:flex; flex-direction:column; gap:22px; }
+.kr-row { }
+.krl { font-size:.65rem; letter-spacing:.15em; text-transform:uppercase; color:var(--orange); margin-bottom:4px; }
+.krv { font-size:.92rem; color:rgba(255,255,255,.72); line-height:1.58; }
+.krv a { color:rgba(255,255,255,.72); text-decoration:none; transition:color var(--T); }
+.krv a:hover { color:var(--orange); }
+.kdiv { height:1px; background:rgba(255,255,255,.07); }
+.kem {
+  display:inline-flex; align-items:center; gap:9px;
+  background:var(--orange); color:#fff; border:none;
+  padding:11px 22px; border-radius:3px; cursor:pointer; text-decoration:none;
+  font-family:'DM Sans',sans-serif; font-size:.86rem; font-weight:500;
+  transition:all var(--T);
+}
+.kem:hover { background:var(--orange-h); transform:translateY(-1px); box-shadow:0 4px 16px rgba(200,114,58,.4); }
+.kform {
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09);
+  padding:40px 44px; border-radius:4px; border-top:2px solid var(--blue);
+  position:relative; z-index:1;
+}
+.kform h3 { font-family:'Cormorant Garamond',serif; font-size:1.45rem; color:#fff; margin-bottom:26px; }
+.kform .bk-contact-grid { }
+.kform .fc { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); color:#fff; }
+.kform .fc::placeholder { color:rgba(255,255,255,.25); }
+.kform .fc:focus { border-color:var(--orange); background:rgba(255,255,255,.1); box-shadow:none; }
+.kform .fg label { color:rgba(255,255,255,.5); }
+.kform .drow label { color:rgba(255,255,255,.42); text-transform:none; font-size:.73rem; }
+.kform .drow a { color:var(--orange); }
+.btn-snd {
+  width:100%; padding:13px; background:var(--orange); color:#fff; border:none;
+  border-radius:3px; font-family:'DM Sans',sans-serif; font-size:.88rem; font-weight:500;
+  cursor:pointer; letter-spacing:.04em; transition:all var(--T); margin-top:4px;
+}
+.btn-snd:hover { background:var(--orange-h); transform:translateY(-1px); box-shadow:0 4px 16px rgba(200,114,58,.4); }
+
+/* ══════════════════════════════════════════════
+   WHATSAPP BUTTON
+══════════════════════════════════════════════ */
+.btn-wa {
+  display:inline-flex; align-items:center; gap:8px;
+  background:#25d366; color:#fff; border:none;
+  padding:10px 20px; border-radius:3px; cursor:pointer;
+  text-decoration:none; font-family:'DM Sans',sans-serif;
+  font-size:.85rem; font-weight:500; transition:all var(--T);
+}
+.btn-wa:hover { background:#1fba58; transform:translateY(-1px); box-shadow:0 4px 16px rgba(37,211,102,.4); }
+.btn-wa svg { width:16px; height:16px; fill:#fff; flex-shrink:0; }
+/* Floating WhatsApp bubble */
+.wa-float {
+  position:fixed; bottom:32px; right:32px; z-index:990;
+  width:56px; height:56px; border-radius:50%;
+  background:#25d366; display:flex; align-items:center; justify-content:center;
+  box-shadow:0 4px 20px rgba(37,211,102,.5); cursor:pointer;
+  text-decoration:none; transition:all var(--T);
+  animation:wa-pulse 3s infinite;
+}
+.wa-float:hover { transform:scale(1.1); box-shadow:0 8px 28px rgba(37,211,102,.6); animation:none; }
+.wa-float svg { width:28px; height:28px; fill:#fff; }
+@keyframes wa-pulse { 0%,100%{box-shadow:0 4px 20px rgba(37,211,102,.5)} 50%{box-shadow:0 4px 28px rgba(37,211,102,.8), 0 0 0 10px rgba(37,211,102,.08)} }
+.wa-float-label {
+  position:absolute; right:calc(100% + 12px); top:50%; transform:translateY(-50%);
+  background:var(--navy-d); color:#fff; font-size:.75rem; white-space:nowrap;
+  padding:6px 12px; border-radius:3px; pointer-events:none;
+  opacity:0; transition:opacity .2s; box-shadow:0 2px 10px rgba(0,0,0,.3);
+}
+.wa-float:hover .wa-float-label { opacity:1; }
+
+/* ══════════════════════════════════════════════
+   VORHER-NACHHER GALERIE
+══════════════════════════════════════════════ */
+#galerie { background:var(--navy); position:relative; overflow:hidden; }
+#galerie::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at 20% 80%, rgba(45,95,166,.12) 0%, transparent 50%); }
+#galerie .stitle { color:#fff; }
+#galerie .lbl { color:var(--orange); }
+#galerie .sdesc { color:rgba(255,255,255,.48); }
+.gal-head { margin-bottom:56px; }
+.gal-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.gal-item { border-radius:4px; overflow:hidden; cursor:pointer; position:relative; }
+.gal-item:hover .gal-overlay { opacity:1; }
+.gal-compare {
+  display:grid; grid-template-columns:1fr 1fr; gap:2px;
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08);
+  border-radius:4px; overflow:hidden; transition:all var(--T);
+}
+.gal-item:hover .gal-compare { border-color:rgba(200,114,58,.4); }
+.gal-side {
+  height:200px; position:relative;
+  background:linear-gradient(135deg, #1a2c3d 0%, #243648 100%);
+  display:flex; align-items:center; justify-content:center;
+}
+.gal-side-before { background:linear-gradient(135deg, #2a3540 0%, #1e2e3c 100%); }
+.gal-side-after { background:linear-gradient(135deg, #1a3a52 0%, #243d54 100%); }
+.gal-badge {
+  position:absolute; top:10px; left:10px;
+  font-size:.6rem; letter-spacing:.14em; text-transform:uppercase;
+  padding:3px 9px; border-radius:2px; font-weight:600;
+}
+.gal-badge-before { background:rgba(107,120,133,.7); color:#fff; }
+.gal-badge-after { background:rgba(200,114,58,.85); color:#fff; }
+.gal-placeholder { width:36px; height:36px; border:1px solid rgba(255,255,255,.14); border-radius:50%; opacity:.22; }
+.gal-caption { padding:16px 18px; background:rgba(255,255,255,.04); border-top:1px solid rgba(255,255,255,.07); }
+.gal-cat { font-size:.6rem; letter-spacing:.15em; text-transform:uppercase; color:var(--orange); margin-bottom:4px; }
+.gal-title { font-family:'Cormorant Garamond',serif; font-size:1.05rem; font-weight:600; color:#fff; margin-bottom:3px; }
+.gal-loc { font-size:.74rem; color:rgba(255,255,255,.38); }
+/* Anfrage CTA under gallery */
+.gal-cta { margin-top:48px; text-align:center; padding:40px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08); border-radius:4px; }
+.gal-cta p { color:rgba(255,255,255,.55); font-size:.9rem; margin-bottom:20px; font-weight:300; }
+.gal-cta strong { color:#fff; }
+
+/* ══════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════ */
+footer { background:#0b1a25; padding:40px 40px 28px; border-top:1px solid rgba(255,255,255,.05); }
+.footer-top { max-width:1440px; margin:0 auto; display:grid; grid-template-columns:1fr auto; align-items:start; gap:40px; margin-bottom:28px; padding-bottom:28px; border-bottom:1px solid rgba(255,255,255,.06); }
+.footer-brand .ln { font-family:'Cormorant Garamond',serif; font-size:1.1rem; font-weight:600; color:#fff; }
+.footer-brand .ls { font-size:.6rem; color:var(--orange); letter-spacing:.2em; text-transform:uppercase; margin-top:2px; }
+.footer-brand p { font-size:.8rem; color:rgba(255,255,255,.35); line-height:1.65; margin-top:10px; max-width:340px; }
+.footer-social { display:flex; align-items:center; gap:12px; }
+.social-btn {
+  display:flex; align-items:center; gap:8px;
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+  color:rgba(255,255,255,.65); padding:9px 16px; border-radius:3px;
+  text-decoration:none; font-size:.78rem; transition:all var(--T); white-space:nowrap;
+}
+.social-btn:hover { background:rgba(255,255,255,.12); color:#fff; border-color:rgba(255,255,255,.25); }
+.social-btn svg { width:15px; height:15px; fill:currentColor; flex-shrink:0; }
+.fi { max-width:1440px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; }
+.fc2 { font-size:.77rem; color:rgba(255,255,255,.27); }
+.fls { display:flex; gap:22px; flex-wrap:wrap; }
+.fls a { font-size:.77rem; color:rgba(255,255,255,.32); text-decoration:none; transition:color var(--T); }
+.fls a:hover { color:var(--orange); }
+
+/* ══════════════════════════════════════════════
+   FAQ
+══════════════════════════════════════════════ */
+#faq { background:var(--cream); }
+.faq-layout { display:grid; grid-template-columns:1fr 1.6fr; gap:72px; align-items:start; }
+.faq-intro { position:sticky; top:90px; }
+.faq-intro .sdesc { margin-top:12px; margin-bottom:28px; }
+.faq-list { display:flex; flex-direction:column; gap:0; border-top:1px solid var(--gray); }
+.faq-item { border-bottom:1px solid var(--gray); overflow:hidden; }
+.faq-q {
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:22px 0; cursor:pointer; transition:color var(--T);
+  font-size:1rem; font-weight:500; color:var(--navy); line-height:1.4;
+  background:none; border:none; text-align:left; width:100%; font-family:'DM Sans',sans-serif;
+}
+.faq-q:hover { color:var(--orange); }
+.faq-q.open { color:var(--orange); }
+.faq-icon {
+  width:28px; height:28px; border-radius:50%; border:1.5px solid var(--gray);
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  transition:all var(--T); background:var(--white);
+}
+.faq-q.open .faq-icon { background:var(--orange); border-color:var(--orange); }
+.faq-icon svg { width:12px; height:12px; stroke:var(--navy); fill:none; stroke-width:2.5; transition:all var(--T); }
+.faq-q.open .faq-icon svg { stroke:#fff; transform:rotate(45deg); }
+.faq-a {
+  max-height:0; overflow:hidden;
+  transition:max-height .4s cubic-bezier(.4,0,.2,1), padding .3s;
+  padding:0;
+}
+.faq-a.open {
+  max-height:400px;
+  padding-bottom:22px;
+}
+.faq-a p { font-size:.9rem; color:var(--muted); line-height:1.82; font-weight:300; }
+.faq-a strong { color:var(--navy); font-weight:500; }
+.faq-a a { color:var(--orange); text-decoration:none; }
+.faq-a a:hover { text-decoration:underline; }
+
+/* ══════════════════════════════════════════════
+   MODAL
+══════════════════════════════════════════════ */
+.mbg { position:fixed; inset:0; background:rgba(0,0,0,.55); backdrop-filter:blur(4px); z-index:9990; display:flex; align-items:center; justify-content:center; opacity:0; visibility:hidden; transition:all .3s; }
+.mbg.open { opacity:1; visibility:visible; }
+.mbox { background:#fff; border-radius:5px; padding:48px; max-width:440px; width:90%; text-align:center; transform:translateY(16px); transition:transform .3s; border-top:3px solid var(--orange); }
+.mbg.open .mbox { transform:translateY(0); }
+.mtt { font-family:'Cormorant Garamond',serif; font-size:1.8rem; color:var(--navy); margin-bottom:10px; }
+.mtx { font-size:.9rem; color:var(--muted); line-height:1.68; margin-bottom:24px; }
+.btn-mc { background:var(--orange); color:#fff; border:none; padding:11px 32px; border-radius:3px; cursor:pointer; font-family:'DM Sans',sans-serif; font-size:.86rem; font-weight:500; transition:background var(--T); }
+.btn-mc:hover { background:var(--orange-h); }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
+@media(max-width:1200px){
+  .bk-shell { grid-template-columns:1fr; }
+  .bk-info { border-bottom:1px solid rgba(255,255,255,.08); }
+  .bk-cal-row { grid-template-columns:1fr; }
+  .david-inner { grid-template-columns:1fr; }
+  .david-portrait { aspect-ratio:16/7; max-height:280px; }
+  .ue-top { grid-template-columns:1fr; }
+  .ko { grid-template-columns:1fr; }
+}
+@media(max-width:1000px){
+  .svc-grid-top { grid-template-columns:1fr 1fr; }
+  .proj-grid { grid-template-columns:1fr 1fr; }
+  .rev-grid { grid-template-columns:1fr 1fr; }
+  .gal-grid { grid-template-columns:1fr 1fr; }
+  .bk-svc-grid { grid-template-columns:1fr; }
+  .hc { grid-template-columns:1fr; }
+  .hero-stats { flex-direction:row; align-items:flex-start; }
+  nav { display:none; }
+  .footer-top { grid-template-columns:1fr; }
+}
+@media(max-width:720px){
+  .hi { padding:0 18px; }
+  section { padding:64px 20px; }
+  #termin { padding:64px 20px; }
+  .svc-grid-top,.svc-grid-bot { grid-template-columns:1fr; }
+  .proj-grid,.rev-grid,.gal-grid { grid-template-columns:1fr; }
+  .bk-form-panel { padding:32px 24px; }
+  .bk-info { padding:36px 28px; }
+  .kform { padding:28px 22px; }
+  .bk-contact-grid { grid-template-columns:1fr; }
+  .ck-bar { padding:14px 20px; }
+  .ck-detail { padding:20px 20px 16px; }
+  .ck-categories { grid-template-columns:1fr; }
+  .rev-head { grid-template-columns:1fr; }
+  .fi { flex-direction:column; align-items:flex-start; }
+  .footer-social { flex-wrap:wrap; }
+  .david-vals { grid-template-columns:1fr; }
+  .kpis { grid-template-columns:1fr 1fr; }
+  .lt { display:none; }
+  .hero-stats { display:none; }
+  .bk-steps { overflow-x:auto; }
+  .btn-termin-h span { display:none; }
+  .wa-float { bottom:20px; right:20px; width:50px; height:50px; }
+  .wa-float svg { width:24px; height:24px; }
+}
 </style>
 </head>
 <body>
 
-<!-- COOKIE -->
+<!-- ══════════════════════════════════════
+     COOKIE CONSENT
+══════════════════════════════════════ -->
+<div id="ck-overlay"></div>
 <div id="ck">
-  <div class="ck-t">Diese Website verwendet nur technisch notwendige Cookies. Weitere Informationen finden Sie in unserer <a href="#">Datenschutzerklärung</a>.</div>
-  <div class="ck-a">
-    <button class="ck-no" onclick="document.getElementById('ck').classList.add('gone')">Ablehnen</button>
-    <button class="ck-ok" onclick="document.getElementById('ck').classList.add('gone')">Akzeptieren</button>
+  <div class="ck-bar">
+    <div class="ck-bar-text">
+      Wir verwenden Cookies, um Ihnen die beste Erfahrung zu bieten. Einige sind technisch notwendig, andere helfen uns, die Website zu verbessern und Ihnen relevante Werbung anzuzeigen. Details in unserer <a href="#">Datenschutzerklärung</a>.
+    </div>
+    <div class="ck-bar-actions">
+      <button class="ck-btn-settings" onclick="ckToggleDetail()">Einstellungen</button>
+      <button class="ck-btn-ess" onclick="ckSaveEssential()">Nur notwendige</button>
+      <button class="ck-btn-all" onclick="ckAcceptAll()">Alle akzeptieren</button>
+    </div>
+  </div>
+  <div class="ck-detail" id="ck-detail">
+    <div class="ck-detail-title">Cookie-Einstellungen</div>
+    <div class="ck-detail-sub">Legen Sie fest, welche Cookies Sie zulassen möchten. Ihre Einwilligung kann jederzeit widerrufen werden. Mehr dazu in unserer <a href="#">Datenschutzerklärung</a>.</div>
+    <div class="ck-categories">
+      <div class="ck-cat">
+        <div class="ck-cat-head"><span class="ck-cat-name">Notwendige Cookies</span><span class="ck-required-badge">Immer aktiv</span></div>
+        <div class="ck-cat-desc">Unerlässlich für den Betrieb der Website. Keine persönlichen Daten werden gespeichert.</div>
+      </div>
+      <div class="ck-cat">
+        <div class="ck-cat-head"><span class="ck-cat-name">Analyse &amp; Statistiken</span>
+          <label class="ck-toggle"><input type="checkbox" id="ck-analytics"><span class="ck-toggle-slider"></span></label>
+        </div>
+        <div class="ck-cat-desc">Helfen uns zu verstehen, wie Besucher die Website nutzen (z.&nbsp;B. Google Analytics). Daten werden anonymisiert erhoben.</div>
+      </div>
+      <div class="ck-cat">
+        <div class="ck-cat-head"><span class="ck-cat-name">Marketing &amp; Tracking</span>
+          <label class="ck-toggle"><input type="checkbox" id="ck-marketing"><span class="ck-toggle-slider"></span></label>
+        </div>
+        <div class="ck-cat-desc">Ermöglichen personalisierte Werbung über Drittanbieter (z.&nbsp;B. Google Ads, Meta Pixel). Daten können weitergegeben werden.</div>
+      </div>
+    </div>
+    <div class="ck-detail-actions">
+      <button class="ck-btn-save" onclick="ckSaveSelection()">Auswahl speichern</button>
+      <button class="ck-btn-back" onclick="ckToggleDetail()">Zurück</button>
+      <button class="ck-btn-all" onclick="ckAcceptAll()">Alle akzeptieren</button>
+    </div>
   </div>
 </div>
 
-<!-- HEADER -->
+<!-- ══════════════════════════════════════
+     HEADER
+══════════════════════════════════════ -->
 <header id="mh">
   <div class="hi">
     <a href="#" class="logo">
       <div class="lm">DS</div>
-      <div class="lt"><span class="ln">David Schütze</span><span class="ls">Haustechnik</span></div>
+      <div class="lt">
+        <span class="ln">David Schütze</span>
+        <span class="ls">Haustechnik</span>
+      </div>
     </a>
+
     <nav>
       <div class="ni"><a href="#" class="nl">Start</a></div>
-      <div class="ni"><a href="#ueber" class="nl">Über uns</a></div>
+      <div class="ni"><a href="#leistungen" class="nl">Leistungen</a></div>
       <div class="ni">
-        <a class="nl">Leistungen &#8964;</a>
+        <a class="nl">Projekte &#8964;</a>
         <div class="nd">
-          <a href="#leistungen">Badsanierung &amp; Design</a>
-          <a href="#leistungen">Sanitär &amp; Installation</a>
-          <a href="#leistungen">Heizung &amp; Wärmetechnik</a>
-          <a href="#leistungen">Notdienst &amp; Reparatur</a>
-          <a href="#leistungen">Modernisierung &amp; Renovierung</a>
+          <a href="#referenzen">Referenzprojekte</a>
+          <a href="#galerie">Vorher &amp; Nachher</a>
+          <a href="#bewertungen">Kundenbewertungen</a>
         </div>
       </div>
-      <div class="ni"><a href="#referenzen" class="nl">Referenzen</a></div>
+      <div class="ni"><a href="#ueber" class="nl">Über uns</a></div>
       <div class="ni"><a href="#kontakt" class="nl">Kontakt</a></div>
-      <div class="ni"><a href="#termin" class="nl">Termin</a></div>
     </nav>
-    <a href="tel:+497215550000" class="btn-em"><div class="edot"></div><span>Notfall-Hotline</span></a>
+
+    <div class="h-actions">
+      <a href="#termin" class="btn-termin-h">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+        <span>Termin buchen</span>
+      </a>
+      <a href="tel:+497215550000" class="btn-em">
+        <div class="edot"></div>
+        <span>Notfall-Hotline</span>
+      </a>
+    </div>
   </div>
 </header>
 
-<!-- HERO -->
+<!-- ══════════════════════════════════════
+     HERO
+══════════════════════════════════════ -->
 <section id="hero">
   <div class="hbg"></div>
-  <div class="hphoto"><div class="hpi"><div class="phl"></div><div class="phi">Teamfoto wird eingefügt</div><div class="phl"></div></div></div>
+  <div class="hphoto">
+    <div class="hpi">
+      <div class="phl"></div>
+      <div class="phi">Teamfoto wird eingefügt</div>
+      <div class="phl"></div>
+    </div>
+  </div>
   <div class="hov"></div>
   <div class="hc">
     <div>
-      <div class="hbadge"><div class="bdot"></div>Karlsruhe &amp; Region Baden-Württemberg</div>
-      <h1>Ihr Experte für<br><strong>Haustechnik</strong> &amp;<br><em>Badsanierung</em></h1>
-      <p class="hsub">Hochwertige Sanitär- und Heizungslösungen für anspruchsvolle Kunden im Raum Karlsruhe. Erstklassige Materialien, präzise Handwerkskunst.</p>
+      <div class="hero-badge"><div class="bdot"></div>Meisterbetrieb · Karlsruhe &amp; Region</div>
+      <h1 class="hero-h1">
+        Badsanierung &amp;<br>
+        <strong>Haustechnik</strong><br>
+        <em>auf höchstem Niveau</em>
+      </h1>
+      <p class="hero-sub">
+        Hochwertige Badsanierungen, Reparaturen und Renovierungen –
+        ausgeführt mit <strong>erstklassigen Materialien</strong> und dem Anspruch,
+        den Sie von einem Meisterbetrieb erwarten dürfen.
+        Im Notfall sind wir <strong>24 Stunden für Sie erreichbar</strong>.
+      </p>
       <div class="hact">
         <a href="#termin" class="btn-p">Termin vereinbaren</a>
-        <a href="#leistungen" class="btn-g">Leistungen entdecken</a>
+        <a href="#leistungen" class="btn-g">Unsere Leistungen</a>
       </div>
     </div>
-    <div class="hright">
-      <div class="stat-row">
-        <div class="sc"><div class="sn">15+</div><div class="sl">Jahre Erfahrung</div></div>
-        <div class="sc"><div class="sn">500+</div><div class="sl">Projekte</div></div>
-        <div class="sc"><div class="sn">4.9</div><div class="sl">Google-Rating</div></div>
-      </div>
+    <div class="hero-stats">
+      <div class="sc"><div class="sn">15+</div><div class="sl">Jahre Erfahrung</div></div>
+      <div class="sc"><div class="sn">500+</div><div class="sl">Projekte</div></div>
+      <div class="sc"><div class="sn">4.9</div><div class="sl">Google-Rating</div></div>
     </div>
   </div>
   <div class="hscroll"><div class="sline"></div>Scrollen</div>
 </section>
 
-<!-- TICKER -->
+<!-- ══════════════════════════════════════
+     BRAND TICKER — 20% larger logos
+══════════════════════════════════════ -->
 <div id="ticker">
   <div class="tw">
-    <div class="tlb">Markenpartner</div>
+
     <div class="tt">
       <div class="ti">
-        <span class="titem">Viessmann</span><span class="tsep"></span>
-        <span class="titem">Grohe</span><span class="tsep"></span>
-        <span class="titem">Buderus</span><span class="tsep"></span>
-        <span class="titem">Hansgrohe</span><span class="tsep"></span>
-        <span class="titem">Vaillant</span><span class="tsep"></span>
-        <span class="titem">Kermi</span><span class="tsep"></span>
-        <span class="titem">Geberit</span><span class="tsep"></span>
-        <span class="titem">Duravit</span><span class="tsep"></span>
-        <span class="titem">Villeroy &amp; Boch</span><span class="tsep"></span>
-        <span class="titem">Bosch</span><span class="tsep"></span>
-        <span class="titem">Viessmann</span><span class="tsep"></span>
-        <span class="titem">Grohe</span><span class="tsep"></span>
-        <span class="titem">Buderus</span><span class="tsep"></span>
-        <span class="titem">Hansgrohe</span><span class="tsep"></span>
-        <span class="titem">Vaillant</span><span class="tsep"></span>
-        <span class="titem">Kermi</span><span class="tsep"></span>
-        <span class="titem">Geberit</span><span class="tsep"></span>
-        <span class="titem">Duravit</span><span class="tsep"></span>
-        <span class="titem">Villeroy &amp; Boch</span><span class="tsep"></span>
-        <span class="titem">Bosch</span><span class="tsep"></span>
+
+        <!-- Viessmann – diamond + wordmark -->
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 148 34" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="14,2 26,17 14,32 2,17" fill="none" stroke="white" stroke-width="1.8"/>
+            <polygon points="14,7 21,17 14,27 7,17" fill="white" opacity=".35"/>
+            <text x="34" y="22" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="white" letter-spacing="1.5">VIESSMANN</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+
+        <!-- GROHE – bold wordmark with underline accent -->
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 90 34" xmlns="http://www.w3.org/2000/svg">
+            <text x="0" y="23" font-family="Arial,sans-serif" font-size="20" font-weight="800" fill="white" letter-spacing="1">GROHE</text>
+            <rect x="0" y="27" width="82" height="2" fill="white" opacity=".3"/>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+
+        <!-- hansgrohe – thin elegant wordmark -->
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 138 34" xmlns="http://www.w3.org/2000/svg">
+            <text x="0" y="22" font-family="Georgia,serif" font-size="17" font-weight="400" fill="white" letter-spacing="2.5" font-style="italic">hansgrohe</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+
+        <!-- Vaillant – flame chevron + text -->
+        <div class="tbrand">
+          <svg height="36" viewBox="0 0 108 36" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 8 L16 28 L26 8 L21 8 L16 20 L11 8 Z" fill="white" opacity=".9"/>
+            <path d="M11 8 L16 20 L21 8 L18 8 L16 15 L14 8 Z" fill="white" opacity=".4"/>
+            <text x="32" y="25" font-family="Arial,sans-serif" font-size="17" font-weight="600" fill="white" letter-spacing="1">vaillant</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+
+        <!-- Geberit – circle G mark + wordmark -->
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 110 34" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="15" cy="17" r="13" fill="none" stroke="white" stroke-width="1.8"/>
+            <path d="M22 17 L15 17 L15 22" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M22 12 A8 8 0 1 0 22 22" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <text x="34" y="23" font-family="Arial,sans-serif" font-size="17" font-weight="500" fill="white" letter-spacing="1">Geberit</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+
+        <!-- Duravit – D in rounded square + wordmark -->
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 100 34" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="4" width="26" height="26" rx="5" fill="none" stroke="white" stroke-width="1.8"/>
+            <text x="7" y="24" font-family="Georgia,serif" font-size="18" font-weight="700" fill="white">D</text>
+            <text x="33" y="23" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="white" letter-spacing=".5">uravit</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+
+        <!-- Villeroy & Boch – crown icon + stacked text -->
+        <div class="tbrand">
+          <svg height="38" viewBox="0 0 144 38" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 28 L10 16 L14 20 L18 12 L22 20 L26 16 L26 28 Z" fill="none" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+            <rect x="8" y="28" width="20" height="2.5" fill="white" opacity=".6"/>
+            <text x="35" y="18" font-family="Georgia,serif" font-size="11" font-weight="400" fill="white" letter-spacing="1.5">VILLEROY</text>
+            <text x="35" y="32" font-family="Georgia,serif" font-size="11" font-weight="400" fill="white" letter-spacing="1.5">&amp; BOCH</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+
+        <!-- Bosch – ring + BOSCH bold -->
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 98 34" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="17" r="14" fill="none" stroke="white" stroke-width="2"/>
+            <circle cx="16" cy="17" r="9" fill="white" opacity=".15"/>
+            <text x="8" y="22" font-family="Arial,sans-serif" font-size="12" font-weight="800" fill="white">bsh</text>
+            <text x="36" y="23" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="white" letter-spacing="1">BOSCH</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+
+        <!-- Buderus – B mark + wordmark -->
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 112 34" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6 L4 28 L16 28 Q24 28 24 22 Q24 18 20 17 Q24 16 24 11 Q24 6 16 6 Z M10 11 L14 11 Q17 11 17 14 Q17 17 14 17 L10 17 Z M10 22 L10 17 L15 17 Q18 17 18 20 Q18 23 15 23 L10 23 Z" fill="white" opacity=".85"/>
+            <text x="30" y="23" font-family="Arial,sans-serif" font-size="16" font-weight="600" fill="white" letter-spacing="1">BUDERUS</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+
+        <!-- Kermi – K mark + wordmark -->
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 82 34" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6 L4 28 M4 17 L16 6 M4 17 L18 28" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <text x="24" y="23" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="white" letter-spacing="1.5">KERMI</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+
+        <!-- === DUPLICATE SET for seamless loop === -->
+
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 148 34" xmlns="http://www.w3.org/2000/svg">
+            <polygon points="14,2 26,17 14,32 2,17" fill="none" stroke="white" stroke-width="1.8"/>
+            <polygon points="14,7 21,17 14,27 7,17" fill="white" opacity=".35"/>
+            <text x="34" y="22" font-family="Arial,sans-serif" font-size="16" font-weight="700" fill="white" letter-spacing="1.5">VIESSMANN</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 90 34" xmlns="http://www.w3.org/2000/svg">
+            <text x="0" y="23" font-family="Arial,sans-serif" font-size="20" font-weight="800" fill="white" letter-spacing="1">GROHE</text>
+            <rect x="0" y="27" width="82" height="2" fill="white" opacity=".3"/>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 138 34" xmlns="http://www.w3.org/2000/svg">
+            <text x="0" y="22" font-family="Georgia,serif" font-size="17" font-weight="400" fill="white" letter-spacing="2.5" font-style="italic">hansgrohe</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+        <div class="tbrand">
+          <svg height="36" viewBox="0 0 108 36" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 8 L16 28 L26 8 L21 8 L16 20 L11 8 Z" fill="white" opacity=".9"/>
+            <path d="M11 8 L16 20 L21 8 L18 8 L16 15 L14 8 Z" fill="white" opacity=".4"/>
+            <text x="32" y="25" font-family="Arial,sans-serif" font-size="17" font-weight="600" fill="white" letter-spacing="1">vaillant</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 110 34" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="15" cy="17" r="13" fill="none" stroke="white" stroke-width="1.8"/>
+            <path d="M22 17 L15 17 L15 22" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <path d="M22 12 A8 8 0 1 0 22 22" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <text x="34" y="23" font-family="Arial,sans-serif" font-size="17" font-weight="500" fill="white" letter-spacing="1">Geberit</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 100 34" xmlns="http://www.w3.org/2000/svg">
+            <rect x="1" y="4" width="26" height="26" rx="5" fill="none" stroke="white" stroke-width="1.8"/>
+            <text x="7" y="24" font-family="Georgia,serif" font-size="18" font-weight="700" fill="white">D</text>
+            <text x="33" y="23" font-family="Arial,sans-serif" font-size="16" font-weight="400" fill="white" letter-spacing=".5">uravit</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+        <div class="tbrand">
+          <svg height="38" viewBox="0 0 144 38" xmlns="http://www.w3.org/2000/svg">
+            <path d="M10 28 L10 16 L14 20 L18 12 L22 20 L26 16 L26 28 Z" fill="none" stroke="white" stroke-width="1.5" stroke-linejoin="round"/>
+            <rect x="8" y="28" width="20" height="2.5" fill="white" opacity=".6"/>
+            <text x="35" y="18" font-family="Georgia,serif" font-size="11" font-weight="400" fill="white" letter-spacing="1.5">VILLEROY</text>
+            <text x="35" y="32" font-family="Georgia,serif" font-size="11" font-weight="400" fill="white" letter-spacing="1.5">&amp; BOCH</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 98 34" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="16" cy="17" r="14" fill="none" stroke="white" stroke-width="2"/>
+            <circle cx="16" cy="17" r="9" fill="white" opacity=".15"/>
+            <text x="8" y="22" font-family="Arial,sans-serif" font-size="12" font-weight="800" fill="white">bsh</text>
+            <text x="36" y="23" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="white" letter-spacing="1">BOSCH</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 112 34" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6 L4 28 L16 28 Q24 28 24 22 Q24 18 20 17 Q24 16 24 11 Q24 6 16 6 Z M10 11 L14 11 Q17 11 17 14 Q17 17 14 17 L10 17 Z M10 22 L10 17 L15 17 Q18 17 18 20 Q18 23 15 23 L10 23 Z" fill="white" opacity=".85"/>
+            <text x="30" y="23" font-family="Arial,sans-serif" font-size="16" font-weight="600" fill="white" letter-spacing="1">BUDERUS</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+        <div class="tbrand">
+          <svg height="34" viewBox="0 0 82 34" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 6 L4 28 M4 17 L16 6 M4 17 L18 28" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <text x="24" y="23" font-family="Arial,sans-serif" font-size="17" font-weight="700" fill="white" letter-spacing="1.5">KERMI</text>
+          </svg>
+        </div>
+        <div class="tsep"></div>
+
       </div>
     </div>
   </div>
 </div>
 
-<!-- TERMIN -->
+<!-- ══════════════════════════════════════
+     TERMINVERGABE — redesigned
+══════════════════════════════════════ -->
 <div id="termin">
-  <div class="bshell">
-    <div class="bside">
-      <div class="slabel">Terminvergabe</div>
-      <h2>Termin online<br><strong>vereinbaren</strong></h2>
-      <p>Wählen Sie Ihre Leistung und ein Wunschdatum. Wir bestätigen Ihren Termin innerhalb von 24 Stunden.</p>
-      <div class="sc2">
-        <div class="sr"><div class="srdot"></div><span>oder direkt anrufen:</span></div>
-        <div class="sr"><div class="srdot"></div><a href="tel:+497215550000">0721 555-0000</a></div>
-        <div class="sr"><div class="srdot"></div><span>Mo – Fr &nbsp;07:00 – 18:00 Uhr</span></div>
-        <div class="sr"><div class="srdot"></div><span>Notdienst 24/7 verfügbar</span></div>
-      </div>
+  <div class="termin-inner">
+    <div class="termin-head">
+      <div class="lbl">Terminvergabe</div>
+      <h2 class="stitle">Termin online <strong>vereinbaren</strong></h2>
+      <p>Wählen Sie Ihre gewünschte Leistung, ein Wunschdatum und Ihre Kontaktdaten.<br>Wir bestätigen Ihren Termin innerhalb von 24 Stunden.</p>
     </div>
-    <div class="bmain">
-      <div class="stepind">
-        <div class="sdot act" id="d1">1</div>
-        <div class="sline2"></div>
-        <span class="slbl2 act" id="l1">Leistung &amp; Datum</span>
-        <div class="sline2" style="margin-left:10px;"></div>
-        <div class="sdot" id="d2">2</div>
-        <div class="sline2"></div>
-        <span class="slbl2" id="l2">Ihre Daten</span>
-      </div>
 
-      <!-- STEP 1 -->
-      <div class="spanel act" id="sp1">
-        <div style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.42);margin-bottom:9px;">Leistung wählen</div>
-        <div class="sg">
-          <button class="sb" onclick="selSvc(this,'Badsanierung &amp; Design')"><div class="sb-mark"></div>Badsanierung<br>&amp; Design</button>
-          <button class="sb" onclick="selSvc(this,'Sanitär &amp; Installation')"><div class="sb-mark"></div>Sanitär &amp;<br>Installation</button>
-          <button class="sb" onclick="selSvc(this,'Heizung &amp; Wärmetechnik')"><div class="sb-mark"></div>Heizung &amp;<br>Wärmetechnik</button>
-          <button class="sb" onclick="selSvc(this,'Notdienst &amp; Reparatur')"><div class="sb-mark"></div>Notdienst &amp;<br>Reparatur</button>
-          <button class="sb" onclick="selSvc(this,'Modernisierung')"><div class="sb-mark"></div>Modernisierung<br>&amp; Renovierung</button>
+    <div class="bk-shell">
+      <!-- Info sidebar -->
+      <div class="bk-info">
+        <div class="bk-info-top">
+          <div class="slabel">Ihr Vorteil</div>
+          <h2>Schnell,<br><strong>persönlich</strong> &amp;<br>zuverlässig</h2>
+          <p style="margin-top:14px;">Kein Warteschleifen. Direkte Kommunikation mit David Schütze und seinem Team – für Ihr Projekt oder Ihren Notfall.</p>
         </div>
-        <div class="crow">
-          <div class="mcal">
-            <div class="mch">
-              <button class="carro" onclick="chM(-1)">&#8249;</button>
-              <div class="cml" id="mlbl">April 2026</div>
-              <button class="carro" onclick="chM(1)">&#8250;</button>
+        <div class="bk-contact">
+          <div class="bk-cr">
+            <div class="bk-cr-icon">
+              <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2A19.79 19.79 0 013.09 4.12 2 2 0 015.07 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11l-1.27 1.27a16 16 0 006.75 6.75l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
             </div>
-            <div class="cgrid" id="cg"></div>
+            <div class="bk-cr-text">
+              <div class="bk-cr-label">Telefon</div>
+              <div class="bk-cr-val"><a href="tel:+497215550000">0721 555-0000</a></div>
+            </div>
           </div>
-          <div class="tpanel" id="tp" style="display:none;">
-            <div class="tp-title">Uhrzeit wählen</div>
-            <div class="tgrid">
-              <div class="ts" onclick="pickT(this)">08:00</div>
-              <div class="ts" onclick="pickT(this)">09:00</div>
-              <div class="ts na">10:00</div>
-              <div class="ts" onclick="pickT(this)">11:00</div>
-              <div class="ts" onclick="pickT(this)">13:00</div>
-              <div class="ts na">14:00</div>
-              <div class="ts" onclick="pickT(this)">15:00</div>
-              <div class="ts" onclick="pickT(this)">16:00</div>
-              <div class="ts" onclick="pickT(this)">17:00</div>
+          <div class="bk-cr">
+            <div class="bk-cr-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="bk-cr-text">
+              <div class="bk-cr-label">Öffnungszeiten</div>
+              <div class="bk-cr-val">Mo – Fr &nbsp;07:00 – 18:00</div>
+            </div>
+          </div>
+          <div class="bk-cr">
+            <div class="bk-cr-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0112 2a8 8 0 018 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>
+            </div>
+            <div class="bk-cr-text">
+              <div class="bk-cr-label">Notdienst</div>
+              <div class="bk-cr-val">24/7 für Notfälle erreichbar</div>
             </div>
           </div>
         </div>
-        <div class="snav"><button class="btn-nx" onclick="g2()">Weiter zu Ihren Daten</button></div>
+        <div class="bk-guarantee">
+          <div class="bk-guar-item">Kostenlose Erstberatung</div>
+          <div class="bk-guar-item">Antwort innerhalb 24 Stunden</div>
+          <div class="bk-guar-item">Preise transparent auf Anfrage</div>
+          <div class="bk-guar-item">Keine versteckten Kosten</div>
+          <div class="bk-guar-item">DSGVO-konforme Datenverarbeitung</div>
+        </div>
       </div>
 
-      <!-- STEP 2 -->
-      <div class="spanel" id="sp2">
-        <div class="sum-tags" id="stags"></div>
-        <div class="cgrid2">
-          <div class="fg"><label>Vorname <span>*</span></label><input type="text" class="fc" placeholder="Max"></div>
-          <div class="fg"><label>Nachname <span>*</span></label><input type="text" class="fc" placeholder="Mustermann"></div>
-          <div class="fg"><label>Telefon <span>*</span></label><input type="tel" class="fc" placeholder="+49 721 ..."></div>
-          <div class="fg"><label>E-Mail</label><input type="email" class="fc" placeholder="max@beispiel.de"></div>
-          <div class="fg full"><label>Anliegen (optional)</label><textarea class="fc" rows="2" placeholder="Kurze Beschreibung Ihres Projekts..."></textarea></div>
-          <div class="fg full"><div class="drow"><input type="checkbox" id="dg1"><label for="dg1">Ich stimme der Verarbeitung meiner Daten zur Terminvereinbarung gemäß der <a href="#">Datenschutzerklärung</a> zu. <span>*</span></label></div></div>
+      <!-- Form panel -->
+      <div class="bk-form-panel">
+        <!-- Step indicator -->
+        <div class="bk-steps">
+          <div class="bk-step-item">
+            <div class="bk-step-num act" id="sn1">1</div>
+            <div class="bk-step-label act" id="sl1">Leistung</div>
+          </div>
+          <div class="bk-step-conn"></div>
+          <div class="bk-step-item">
+            <div class="bk-step-num" id="sn2">2</div>
+            <div class="bk-step-label" id="sl2">Datum &amp; Zeit</div>
+          </div>
+          <div class="bk-step-conn"></div>
+          <div class="bk-step-item">
+            <div class="bk-step-num" id="sn3">3</div>
+            <div class="bk-step-label" id="sl3">Ihre Daten</div>
+          </div>
         </div>
-        <div class="snav">
-          <button class="btn-bk" onclick="g1()">Zurück</button>
-          <button class="btn-sub" onclick="subBook()">Termin verbindlich anfragen</button>
+
+        <!-- SCHRITT 1: Leistung -->
+        <div class="bk-panel act" id="bk1">
+          <div class="bk-svc-wrap">
+            <div class="bk-svc-label">Welche Leistung benötigen Sie?</div>
+            <div class="bk-svc-grid">
+              <button class="bk-svc-btn" onclick="bkSelSvc(this,'Badsanierung &amp; Design')">
+                <div class="bk-svc-head"><div class="bsb-name">Badsanierung &amp; Design</div><div class="bsb-check"></div></div>
+                <div class="bsb-hint">Planung, Sanierung &amp; schlüsselfertige Übergabe</div>
+              </button>
+              <button class="bk-svc-btn" onclick="bkSelSvc(this,'Reparatur &amp; Entstörung')">
+                <div class="bk-svc-head"><div class="bsb-name">Reparatur &amp; Entstörung</div><div class="bsb-check"></div></div>
+                <div class="bsb-hint">Notdienst 24/7 – Rohrbruch, Leckage, Ausfall</div>
+              </button>
+              <button class="bk-svc-btn" onclick="bkSelSvc(this,'Renovierung &amp; Modernisierung')">
+                <div class="bk-svc-head"><div class="bsb-name">Renovierung &amp; Modernisierung</div><div class="bsb-check"></div></div>
+                <div class="bsb-hint">Modernisierung, Umbau &amp; nachhaltige Wertsteigerung</div>
+              </button>
+              <button class="bk-svc-btn" onclick="bkSelSvc(this,'Sanitär &amp; Installation')">
+                <div class="bk-svc-head"><div class="bsb-name">Sanitär &amp; Installation</div><div class="bsb-check"></div></div>
+                <div class="bsb-hint">Neuinstallation, Armaturen &amp; Leitungsarbeiten</div>
+              </button>
+              <button class="bk-svc-btn" onclick="bkSelSvc(this,'Heizung &amp; Wärmetechnik')">
+                <div class="bk-svc-head"><div class="bsb-name">Heizung &amp; Wärmetechnik</div><div class="bsb-check"></div></div>
+                <div class="bsb-hint">Wärmepumpe, Gas &amp; Hybridlösungen aller Hersteller</div>
+              </button>
+              <button class="bk-svc-btn" onclick="bkSelSvc(this,'Beratung &amp; Kostenvoranschlag')">
+                <div class="bk-svc-head"><div class="bsb-name">Beratung &amp; Kostenvoranschlag</div><div class="bsb-check"></div></div>
+                <div class="bsb-hint">Kostenloses Erstgespräch – vor Ort oder telefonisch</div>
+              </button>
+            </div>
+          </div>
+          <div class="bk-nav"><div></div><div class="bk-nav-right"><button class="btn-nx" onclick="bkGo(2)">Weiter: Datum wählen ›</button></div></div>
         </div>
-      </div>
-    </div>
+
+        <!-- SCHRITT 2: Datum & Zeit -->
+        <div class="bk-panel" id="bk2">
+          <div class="sum-tags" id="bk-sum1"></div>
+          <div class="bk-cal-row">
+            <div class="bk-cal-wrap">
+              <div class="bk-cal-title">Wunschdatum</div>
+              <div class="cal-card">
+                <div class="cal-hdr">
+                  <button class="cal-nav-btn" onclick="bkChM(-1)">&#8249;</button>
+                  <div class="cal-month-lbl" id="bk-mlbl">April 2026</div>
+                  <button class="cal-nav-btn" onclick="bkChM(1)">&#8250;</button>
+                </div>
+                <div class="cal-grid" id="bk-cgrid"></div>
+              </div>
+            </div>
+            <div>
+              <div class="bk-time-title">Wunschuhrzeit</div>
+              <div class="bk-time-grid" id="bk-tgrid">
+                <div class="t-slot" onclick="bkSelT(this)">08:00 – 09:00</div>
+                <div class="t-slot" onclick="bkSelT(this)">09:00 – 10:00</div>
+                <div class="t-slot na">10:00 – 11:00</div>
+                <div class="t-slot" onclick="bkSelT(this)">11:00 – 12:00</div>
+                <div class="t-slot" onclick="bkSelT(this)">13:00 – 14:00</div>
+                <div class="t-slot na">14:00 – 15:00</div>
+                <div class="t-slot" onclick="bkSelT(this)">15:00 – 16:00</div>
+                <div class="t-slot" onclick="bkSelT(this)">16:00 – 17:00</div>
+                <div class="t-slot" onclick="bkSelT(this)">17:00 – 18:00</div>
+                <div class="t-slot" onclick="bkSelT(this)">Flexibler Termin</div>
+              </div>
+              <p style="font-size:.72rem;color:var(--muted);margin-top:10px;line-height:1.55;">Grau hinterlegt = bereits vergeben. Wir bestätigen Ihren Wunschtermin.</p>
+            </div>
+          </div>
+          <div class="bk-nav">
+            <button class="btn-bk2" onclick="bkGo(1)">‹ Zurück</button>
+            <div class="bk-nav-right"><button class="btn-nx" onclick="bkGo(3)">Weiter: Ihre Daten ›</button></div>
+          </div>
+        </div>
+
+        <!-- SCHRITT 3: Kontaktdaten -->
+        <div class="bk-panel" id="bk3">
+          <div class="sum-tags" id="bk-sum2"></div>
+          <div class="bk-contact-grid">
+            <div class="fg"><label>Vorname <span>*</span></label><input type="text" class="fc" placeholder="Max"></div>
+            <div class="fg"><label>Nachname <span>*</span></label><input type="text" class="fc" placeholder="Mustermann"></div>
+            <div class="fg"><label>Telefon <span>*</span></label><input type="tel" class="fc" placeholder="+49 721 ..."></div>
+            <div class="fg"><label>E-Mail</label><input type="email" class="fc" placeholder="max@beispiel.de"></div>
+            <div class="fg full"><label>Anliegen (optional)</label><textarea class="fc" rows="3" placeholder="Kurze Beschreibung Ihres Projekts oder Anliegens..."></textarea></div>
+            <div class="fg full">
+              <div class="drow">
+                <input type="checkbox" id="bk-dsgvo">
+                <label for="bk-dsgvo">Ich stimme der Verarbeitung meiner Daten zur Terminvereinbarung gemäß der <a href="#">Datenschutzerklärung</a> zu. Meine Daten werden nicht an Dritte weitergegeben. <span style="color:var(--orange)">*</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="bk-nav">
+            <button class="btn-bk2" onclick="bkGo(2)">‹ Zurück</button>
+            <div class="bk-nav-right"><button class="btn-sub" onclick="bkSubmit()">Termin verbindlich anfragen</button></div>
+          </div>
+        </div>
+
+      </div><!-- end bk-form-panel -->
+    </div><!-- end bk-shell -->
   </div>
 </div>
 
-<!-- LEISTUNGEN -->
+<!-- ══════════════════════════════════════
+     LEISTUNGEN — full width
+══════════════════════════════════════ -->
 <section id="leistungen">
   <div class="inner">
-    <div class="svc-out">
+    <!-- Header: same clean style as Referenzen -->
+    <div style="display:grid;grid-template-columns:1fr auto;align-items:end;gap:40px;margin-bottom:40px;">
       <div>
         <div class="lbl">Leistungen</div>
-        <h2 class="stitle">Was wir für Sie<br><strong>leisten</strong></h2>
-        <p class="sdesc">Von der Badsanierung bis zur Heizungsanlage – hochwertige Haustechniklösungen aus einer Hand, mit Premium-Materialien und jahrelanger Expertise.</p>
-        <br><br>
-        <a href="#termin" class="btn-p" style="display:inline-flex;text-decoration:none;">Jetzt anfragen</a>
+        <h2 class="stitle">Was wir für Sie <strong>leisten</strong></h2>
+        <p class="sdesc" style="margin-top:8px;max-width:620px;">Meisterliche Handwerkskunst und zertifizierte Premium-Materialien – aus einer Hand, mit persönlicher Verantwortung für jedes Detail.</p>
       </div>
-      <div class="svc-grid">
-        <div class="svc"><div class="svcn">01</div><div class="svcl"></div><div class="svct">Badsanierung &amp; Design</div><div class="svcd">Luxusbäder von der Planung bis zur Fertigstellung – individuell, hochwertig und termingerecht umgesetzt.</div></div>
-        <div class="svc"><div class="svcn">02</div><div class="svcl"></div><div class="svct">Sanitär &amp; Installation</div><div class="svcd">Fachgerechte Installation aller Sanitäranlagen mit erstklassigen Markenprodukten führender Hersteller.</div></div>
-        <div class="svc"><div class="svcn">03</div><div class="svcl"></div><div class="svct">Heizung &amp; Wärmetechnik</div><div class="svcd">Moderne Heizsysteme, Wärmepumpen und Effizienzlösungen für nachhaltigen Wohnkomfort.</div></div>
-        <div class="svc"><div class="svcn">04</div><div class="svcl"></div><div class="svct">Notdienst &amp; Reparatur</div><div class="svcd">24/7 Notdienst bei Rohrbruch und Heizungsausfall – schnell und zuverlässig im gesamten Einzugsgebiet.</div></div>
-        <div class="svc last"><div class="svcn">05</div><div class="svcl"></div><div class="svct">Modernisierung &amp; Renovierung</div><div class="svcd">Umfassende Modernisierung Ihrer Bestandsanlage – energieeffizient, nachhaltig und wertsteigernd für Ihre Immobilie.</div></div>
+      <div style="padding-bottom:14px;flex-shrink:0;">
+        <a href="#termin" class="btn-p" style="display:inline-flex;text-decoration:none;white-space:nowrap;">Leistung anfragen</a>
+      </div>
+    </div>
+    <!-- Key-points strip -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--gray);border:1px solid var(--gray);border-radius:4px;overflow:hidden;margin-bottom:48px;">
+      <div style="background:var(--white);padding:20px 22px;">
+        <div style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin-bottom:5px;font-weight:500;">Schwerpunkt</div>
+        <div style="font-size:.88rem;font-weight:500;color:var(--navy);">Bad &amp; Renovierung</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:3px;font-weight:300;">Planung, Ausführung &amp; Übergabe aus einer Hand</div>
+      </div>
+      <div style="background:var(--white);padding:20px 22px;">
+        <div style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin-bottom:5px;font-weight:500;">Materialien</div>
+        <div style="font-size:.88rem;font-weight:500;color:var(--navy);">Nur Markenprodukte</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:3px;font-weight:300;">Grohe, Duravit, Viessmann und weitere Premiumhersteller</div>
+      </div>
+      <div style="background:var(--white);padding:20px 22px;">
+        <div style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin-bottom:5px;font-weight:500;">Erreichbarkeit</div>
+        <div style="font-size:.88rem;font-weight:500;color:var(--navy);">24/7 Notdienst</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:3px;font-weight:300;">Persönlich erreichbar – auch nachts und am Wochenende</div>
+      </div>
+      <div style="background:var(--white);padding:20px 22px;">
+        <div style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin-bottom:5px;font-weight:500;">Transparenz</div>
+        <div style="font-size:.88rem;font-weight:500;color:var(--navy);">Preise auf Anfrage</div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:3px;font-weight:300;">Kostenloser Kostenvoranschlag – fair und ohne Überraschungen</div>
+      </div>
+    </div>
+
+    <!-- Row 1: 3 cards -->
+    <div class="svc-grid-top">
+      <div class="svc-card">
+        <div class="svc-num">01</div>
+        <div class="svc-line"></div>
+        <div class="svc-tag">Schwerpunktleistung</div>
+        <div class="svc-title">Badsanierung &amp; Design</div>
+        <div class="svc-desc">Ihr Bad ist mehr als ein Raum – es ist ein täglicher Rückzugsort. Wir planen und realisieren Ihr Traumbad von der ersten Idee bis zur schlüsselfertigen Übergabe: hochwertige Materialien, präzise Verarbeitung und ein Ergebnis, das Jahrzehnte hält. Dabei beginnen wir mit einer ausführlichen Beratung, bei der Ihre Wünsche, Ihr Budget und die baulichen Gegebenheiten sorgfältig erfasst werden.</div>
+        <div class="svc-points">
+          <div class="svc-point">Komplettplanung vom ersten Entwurf bis zur Übergabe</div>
+          <div class="svc-point">Exklusive Markenprodukte: Duravit, Grohe, Hansgrohe, Villeroy &amp; Boch</div>
+          <div class="svc-point">Barrierefrei-Umbauten und altersgerechte Lösungen</div>
+          <div class="svc-point">Festpreisgarantie auf Anfrage – keine bösen Überraschungen</div>
+          <div class="svc-point">Termingerechte Fertigstellung als verbindliche Zusage</div>
+        </div>
+      </div>
+      <div class="svc-card">
+        <div class="svc-num">02</div>
+        <div class="svc-line"></div>
+        <div class="svc-tag">Schwerpunktleistung</div>
+        <div class="svc-title">Reparatur &amp; Entstörung</div>
+        <div class="svc-desc">Rohrbruch, Leckage oder Heizungsausfall mitten in der Nacht – wir sind für Sie da, wenn andere schlafen. Unser Notdienst ist 24 Stunden erreichbar, 365 Tage im Jahr. Wir liefern schnelle Diagnose, ehrliche Beratung und eine dauerhafte Lösung – kein Pflaster, sondern eine echte Reparatur, die auch langfristig hält.</div>
+        <div class="svc-points">
+          <div class="svc-point">24/7 Notdienst – persönlich erreichbar, kein Anrufbeantworter</div>
+          <div class="svc-point">Rohrbruch, Leckage, Verstopfung, Heizungsausfall</div>
+          <div class="svc-point">Schnelle Vor-Ort-Diagnose mit modernem Equipment</div>
+          <div class="svc-point">Schriftliche Dokumentation jedes Einsatzes</div>
+          <div class="svc-point">Folgetermin zur Qualitätsprüfung auf Wunsch</div>
+        </div>
+      </div>
+      <div class="svc-card">
+        <div class="svc-num">03</div>
+        <div class="svc-line"></div>
+        <div class="svc-tag">Schwerpunktleistung</div>
+        <div class="svc-title">Renovierung &amp; Modernisierung</div>
+        <div class="svc-desc">Alte Substanz, neuer Glanz: Wir sanieren Bestandsanlagen, erneuern veraltete Einrichtungen und modernisieren Badezimmer sowie Leitungsnetze – energieeffizient, wertsteigend und mit dem Blick fürs Detail, der den Unterschied macht. Ob Teilsanierung eines Gäste-WCs oder die vollständige Modernisierung eines Mehrfamilienhauses – wir koordinieren alle Gewerke sauber und termingerecht.</div>
+        <div class="svc-points">
+          <div class="svc-point">Teilsanierung und Kompletterneuerung aus einer Hand</div>
+          <div class="svc-point">Energieeffiziente Lösungen mit Förderberatung auf Anfrage</div>
+          <div class="svc-point">Modernisierung von Einzel- und Mehrfamilienhäusern</div>
+          <div class="svc-point">Koordination aller beteiligten Gewerke</div>
+          <div class="svc-point">Saubere Baustelle – tägliche Reinigung inklusive</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: 2 cards centered -->
+    <div class="svc-grid-bot">
+      <div class="svc-card">
+        <div class="svc-num">04</div>
+        <div class="svc-line"></div>
+        <div class="svc-tag">Haustechnik</div>
+        <div class="svc-title">Sanitär &amp; Installation</div>
+        <div class="svc-desc">Neuinstallation von Sanitäranlagen, Armaturen und Leitungen – fachgerecht, normgerecht und mit ausschließlich zertifizierten Markenprodukten führender Hersteller. Für ein Ergebnis, das keine Kompromisse kennt. Ob Neubau oder Bestandsobjekt: wir installieren präzise, sauber und mit dem Handwerk eines Meisters, der für jeden Handgriff persönlich einsteht.</div>
+        <div class="svc-points">
+          <div class="svc-point">Neuinstallation im Neubau und Bestandsgebäude</div>
+          <div class="svc-point">Armaturen, Leitungen, Siphons und Anschlüsse aller Art</div>
+          <div class="svc-point">Ausschließlich normgerechte Ausführung (DIN/DVGW)</div>
+          <div class="svc-point">Gemeinsame Abnahme und schriftliche Dokumentation</div>
+        </div>
+      </div>
+      <div class="svc-card">
+        <div class="svc-num">05</div>
+        <div class="svc-line"></div>
+        <div class="svc-tag">Haustechnik</div>
+        <div class="svc-title">Heizung &amp; Wärmetechnik</div>
+        <div class="svc-desc">Moderne Heizsysteme, Wärmepumpen und energieeffiziente Lösungen für nachhaltigen Wohnkomfort. Wir beraten Sie zur zukunftssicheren Wahl und setzen Ihre Heizungsanlage mit höchster handwerklicher Sorgfalt um. Dabei denken wir nicht nur an die Gegenwart – sondern an die nächsten zwanzig Jahre. Von der Planung über die Inbetriebnahme bis zur Einweisung begleiten wir Sie vollständig.</div>
+        <div class="svc-points">
+          <div class="svc-point">Wärmepumpen, Gasheizung, Hybridlösungen</div>
+          <div class="svc-point">Markengeräte: Viessmann, Vaillant, Buderus, Bosch</div>
+          <div class="svc-point">Fußbodenheizung und Heizkörperinstallation</div>
+          <div class="svc-point">Wartungsverträge für dauerhaft störungsfreien Betrieb</div>
+          <div class="svc-point">Persönliche Einweisung nach Inbetriebnahme inklusive</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- REFERENZEN -->
+<!-- ══════════════════════════════════════
+     REFERENZEN — full width
+══════════════════════════════════════ -->
 <section id="referenzen">
   <div class="inner">
-    <div class="ref-out">
+    <!-- Horizontal header -->
+    <div style="display:grid;grid-template-columns:1fr auto;align-items:end;gap:40px;margin-bottom:56px;">
       <div>
-        <div class="lbl">Projekte</div>
-        <h2 class="stitle">Referenzen aus<br><strong>der Region</strong></h2>
-        <p class="sdesc">Ausgewählte Projekte aus dem Raum Karlsruhe und Baden-Württemberg.</p>
-        <br><br>
-        <a href="#kontakt" class="btn-g" style="display:inline-flex;text-decoration:none;border-color:rgba(255,255,255,.3);color:#fff;">Alle Projekte</a>
+        <div class="lbl">Referenzprojekte</div>
+        <h2 class="stitle">Ausgewählte <strong>Projekte</strong> aus der Region</h2>
+        <p class="sdesc" style="margin-top:8px;max-width:620px;">Jedes Projekt ist ein Versprechen an unsere Kunden – für Qualität, die man sieht, und Zuverlässigkeit, die man spürt.</p>
       </div>
-      <div class="pgrid">
-        <div class="pc"><div class="pimg"><div class="picon"></div></div><div class="pi"><div class="pt">Badsanierung</div><div class="pti">Komplettbad Neubau</div><div class="pl">Karlsruhe-Weststadt &nbsp;·&nbsp; 2024</div></div></div>
-        <div class="pc"><div class="pimg"><div class="picon"></div></div><div class="pi"><div class="pt">Heizung</div><div class="pti">Wärmepumpenanlage EFH</div><div class="pl">Ettlingen &nbsp;·&nbsp; 2024</div></div></div>
-        <div class="pc"><div class="pimg"><div class="picon"></div></div><div class="pi"><div class="pt">Modernisierung</div><div class="pti">Badezimmer-Upgrade MFH</div><div class="pl">Bruchsal &nbsp;·&nbsp; 2023</div></div></div>
+      <div style="flex-shrink:0;padding-bottom:14px;">
+        <a href="#kontakt" class="btn-g" style="display:inline-flex;text-decoration:none;border-color:rgba(255,255,255,.3);color:#fff;white-space:nowrap;">Alle Projekte anfragen</a>
+      </div>
+    </div>
+    <div class="proj-grid">
+      <div class="proj-card">
+        <div class="proj-img">
+          <div class="proj-cat-badge">Badsanierung</div>
+          <div class="proj-img-inner"></div>
+        </div>
+        <div class="proj-body">
+          <div class="proj-title">Komplettbad Neubau – Einfamilienhaus</div>
+          <div class="proj-loc">Karlsruhe-Weststadt &nbsp;·&nbsp; 2024</div>
+        </div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-img">
+          <div class="proj-cat-badge">Heizung</div>
+          <div class="proj-img-inner"></div>
+        </div>
+        <div class="proj-body">
+          <div class="proj-title">Wärmepumpenanlage mit Fußbodenheizung</div>
+          <div class="proj-loc">Ettlingen &nbsp;·&nbsp; 2024</div>
+        </div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-img">
+          <div class="proj-cat-badge">Modernisierung</div>
+          <div class="proj-img-inner"></div>
+        </div>
+        <div class="proj-body">
+          <div class="proj-title">Badezimmer-Modernisierung Mehrfamilienhaus</div>
+          <div class="proj-loc">Bruchsal &nbsp;·&nbsp; 2023</div>
+        </div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-img">
+          <div class="proj-cat-badge">Reparatur</div>
+          <div class="proj-img-inner"></div>
+        </div>
+        <div class="proj-body">
+          <div class="proj-title">Notfalleinsatz Rohrbruch &amp; Sanierung</div>
+          <div class="proj-loc">Karlsruhe-Südstadt &nbsp;·&nbsp; 2024</div>
+        </div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-img">
+          <div class="proj-cat-badge">Badsanierung</div>
+          <div class="proj-img-inner"></div>
+        </div>
+        <div class="proj-body">
+          <div class="proj-title">Barrierefreies Bad – Bestandsobjekt</div>
+          <div class="proj-loc">Karlsruhe-Durlach &nbsp;·&nbsp; 2023</div>
+        </div>
+      </div>
+      <div class="proj-card">
+        <div class="proj-img">
+          <div class="proj-cat-badge">Sanitär</div>
+          <div class="proj-img-inner"></div>
+        </div>
+        <div class="proj-body">
+          <div class="proj-title">Komplettinstallation Neubau</div>
+          <div class="proj-loc">Rastatt &nbsp;·&nbsp; 2023</div>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- BEWERTUNGEN -->
+<!-- ══════════════════════════════════════
+     BEWERTUNGEN — detailed
+══════════════════════════════════════ -->
 <section id="bewertungen">
   <div class="inner">
-    <div class="rev-out">
+    <!-- Horizontal header -->
+    <div style="display:grid;grid-template-columns:1fr auto;align-items:end;gap:40px;margin-bottom:56px;">
       <div>
         <div class="lbl">Kundenstimmen</div>
         <h2 class="stitle">Was unsere Kunden<br><strong>sagen</strong></h2>
-        <div class="gb">
-          <div class="glo">G</div>
-          <div><div class="gs">4.9</div><div class="gst">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="gc">48 Google-Bewertungen</div></div>
+        <p class="sdesc" style="margin-top:8px;max-width:560px;">Verlässlichkeit entsteht durch Erfahrungen – hier ist, was unsere Kunden über die Zusammenarbeit mit David Schütze berichten.</p>
+      </div>
+      <div class="g-badge" style="flex-shrink:0;align-self:flex-end;">
+        <div class="g-logo-txt">G</div>
+        <div>
+          <div class="g-score">4.9</div>
+          <div class="g-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <div class="g-count">48 Google-Bewertungen</div>
         </div>
       </div>
-      <div class="rgrid">
-        <div class="rc"><div class="rst">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="rtx">„Absolut professionelle Arbeit – pünktlich, sauber und das Ergebnis ist traumhaft. Unser neues Bad übersteigt alle Erwartungen!"</div><div class="rau"><div class="rav">MK</div><div><div class="rn">Markus K.</div><div class="rd">Karlsruhe · vor 2 Monaten</div></div></div></div>
-        <div class="rc"><div class="rst">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="rtx">„Herr Schütze hat bei einem Rohrbruch schnell und kompetent geholfen. Notdienst innerhalb von 30 Minuten – wirklich top!"</div><div class="rau"><div class="rav">SR</div><div><div class="rn">Sandra R.</div><div class="rd">Ettlingen · vor 4 Monaten</div></div></div></div>
-        <div class="rc"><div class="rst">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="rtx">„Die neue Heizungsanlage läuft perfekt. Sehr freundliches Team, faire Preise und hervorragende Beratung. Klare Empfehlung!"</div><div class="rau"><div class="rav">TH</div><div><div class="rn">Thomas H.</div><div class="rd">Bruchsal · vor 6 Monaten</div></div></div></div>
+    </div>
+    <div class="rev-grid">
+
+      <div class="rev-card">
+        <div class="rev-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <div class="rev-text">
+          „Wir hatten unser Badezimmer komplett sanieren lassen und können David Schütze und sein Team nur wärmstens empfehlen. <strong>Von der ersten Beratung bis zur Übergabe war alles absolut professionell.</strong> Herr Schütze hat sich Zeit genommen, unsere Wünsche zu verstehen, und hat uns in jedem Schritt transparent begleitet. Das Ergebnis hat unsere Erwartungen weit übertroffen – pünktlich, sauber und makellos ausgeführt."
+        </div>
+        <div class="rev-divider"></div>
+        <div class="rev-author">
+          <div class="rev-av">MK</div>
+          <div>
+            <div class="rev-name">Markus K.</div>
+            <div class="rev-meta">Karlsruhe-Weststadt · vor 2 Monaten</div>
+          </div>
+        </div>
       </div>
+
+      <div class="rev-card">
+        <div class="rev-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <div class="rev-text">
+          „Sonntagabend, Rohrbruch im Keller – ich war kurz davor, in Panik zu verfallen. <strong>Herr Schütze war innerhalb von 25 Minuten bei mir</strong>, ruhig, kompetent und fokussiert. Er hat den Schaden sofort behoben und mir danach noch erklärt, was genau passiert ist und wie wir solche Situationen künftig vermeiden können. Das nenne ich echten Service – und echte Verlässlichkeit."
+        </div>
+        <div class="rev-divider"></div>
+        <div class="rev-author">
+          <div class="rev-av">SR</div>
+          <div>
+            <div class="rev-name">Sandra R.</div>
+            <div class="rev-meta">Ettlingen · vor 4 Monaten</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rev-card">
+        <div class="rev-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <div class="rev-text">
+          „Unsere neue Wärmepumpenanlage läuft seit einem halben Jahr absolut einwandfrei. <strong>Die Beratung war ehrlich, die Preise fair und die Ausführung erstklassig.</strong> Besonders geschätzt habe ich, dass Herr Schütze uns nicht das teuerste Modell verkauft hat, sondern das, das am besten zu unseren Bedürfnissen passt. Das Vertrauen, das er aufbaut, ist das Wertvollste."
+        </div>
+        <div class="rev-divider"></div>
+        <div class="rev-author">
+          <div class="rev-av">TH</div>
+          <div>
+            <div class="rev-name">Thomas H.</div>
+            <div class="rev-meta">Bruchsal · vor 6 Monaten</div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
 
-<!-- ÜBER UNS -->
+<!-- ══════════════════════════════════════
+     ÜBER UNS — company + David
+══════════════════════════════════════ -->
 <section id="ueber">
   <div class="inner">
-    <div class="ue-out">
+
+    <!-- Company overview -->
+    <div class="ue-top">
       <div>
         <div class="lbl">Über uns</div>
-        <h2 class="stitle">Ihr Partner in<br><strong>der Region</strong></h2>
-        <p class="sdesc" style="margin-bottom:16px;">David Schütze Haustechnik steht für höchste Qualität, Zuverlässigkeit und persönlichen Service. Seit über 15 Jahren sind wir Ihr vertrauenswürdiger Partner für alle Haustechnikfragen im Raum Karlsruhe – innerhalb eines Serviceradius von 100 km.</p>
-        <p class="sdesc">Wir arbeiten ausschließlich mit Premium-Materialien führender Hersteller und bieten neben handwerklicher Exzellenz eine umfassende Beratung, die Ihre individuellen Wünsche in den Mittelpunkt stellt.</p>
+        <h2 class="stitle">Ihr zuverlässiger<br><strong>Partner in der Region</strong></h2>
+        <p class="sdesc" style="margin-bottom:18px;">
+          David Schütze Haustechnik steht für höchste Qualität, persönliche Verlässlichkeit und handwerkliche Präzision. Seit über 15 Jahren sind wir der vertrauenswürdige Ansprechpartner für Badsanierungen, Reparaturen und Haustechnik im Raum Karlsruhe – innerhalb eines Serviceradius von 100 km.
+        </p>
+        <p class="sdesc">
+          Wir arbeiten ausschließlich mit Premium-Materialien führender Hersteller und legen größten Wert auf langfristige Kundenbeziehungen. Viele unserer Kunden kommen seit Jahren immer wieder zu uns – weil sie wissen, dass gute Arbeit keine Ausnahme, sondern unser Standard ist.
+        </p>
         <div class="kpis">
           <div class="kpi"><div class="kpin">100 km</div><div class="kpil">Serviceradius</div></div>
           <div class="kpi"><div class="kpin">15 J.</div><div class="kpil">Erfahrung</div></div>
@@ -569,148 +1676,553 @@
           <div class="kpi"><div class="kpin">500+</div><div class="kpil">Projekte</div></div>
         </div>
       </div>
-      <div class="umap">
-        <svg viewBox="0 0 400 480" xmlns="http://www.w3.org/2000/svg">
-          <rect width="400" height="480" fill="#f0ede8"/>
-          <path d="M155,25 L175,20 L200,22 L225,18 L250,28 L272,38 L285,55 L295,78 L310,98 L318,125 L325,155 L320,180 L335,205 L348,232 L342,258 L328,278 L318,308 L302,335 L278,358 L255,378 L228,392 L200,405 L172,395 L145,378 L118,358 L95,335 L75,308 L62,278 L52,250 L48,222 L55,195 L46,168 L54,140 L68,115 L82,92 L92,68 L108,48 L130,35 Z" fill="#ddd8d0" stroke="#c4beb6" stroke-width="1.5"/>
-          <circle cx="150" cy="195" r="118" fill="none" stroke="#c8723a" stroke-width="1.5" stroke-dasharray="7,5" opacity="0.5"/>
-          <circle cx="150" cy="195" r="5" fill="#c8723a"/>
-          <circle cx="150" cy="195" r="11" fill="#c8723a" opacity="0.18"/>
-          <circle cx="212" cy="162" r="3.5" fill="#2d5fa6" opacity="0.6"/>
-          <text x="218" y="167" font-size="9" font-family="DM Sans,sans-serif" fill="#2d5fa6" opacity="0.7">Stuttgart</text>
-          <circle cx="95" cy="192" r="3.5" fill="#2d5fa6" opacity="0.6"/>
-          <text x="34" y="197" font-size="9" font-family="DM Sans,sans-serif" fill="#2d5fa6" opacity="0.7">Mannheim</text>
-          <circle cx="150" cy="248" r="3.5" fill="#2d5fa6" opacity="0.6"/>
-          <text x="156" y="253" font-size="9" font-family="DM Sans,sans-serif" fill="#2d5fa6" opacity="0.7">Freiburg</text>
-          <text x="98" y="210" font-size="10" font-family="DM Sans,sans-serif" fill="#c8723a" font-weight="600">Karlsruhe</text>
-          <text x="175" y="318" font-size="7.5" font-family="DM Sans,sans-serif" fill="#8a8480" opacity="0.65">100 km Serviceradius</text>
-        </svg>
+      <!-- Leaflet Map: Karlsruhe + 100km Radius -->
+      <div class="umap" id="karte" style="height:370px;border-radius:4px;overflow:hidden;border:1px solid var(--gray);position:relative;"></div>
+    </div>
+
+    <!-- David personal section -->
+    <div class="david-section">
+      <div class="david-inner">
+        <div class="david-portrait">
+          <div class="david-portrait-bg">
+            <div class="david-photo-line"></div>
+            <div class="david-photo-hint">Foto David Schütze</div>
+            <div class="david-photo-line"></div>
+          </div>
+          <div class="david-nameplate">
+            <div class="david-nameplate-name">David Schütze</div>
+            <div class="david-nameplate-title">Meister im Sanitärfach</div>
+          </div>
+        </div>
+        <div class="david-content">
+          <div class="lbl">Der Meister dahinter</div>
+          <h2 class="stitle">Leidenschaft für das<br><em>Handwerk</em> –<br><strong>seit Jugend an</strong></h2>
+          <div class="david-quote">
+            <p>„Ich saniere keine Bäder – ich schaffe Räume, in denen Menschen sich jeden Morgen wohlfühlen. Das ist mein Anspruch seit dem ersten Tag meiner Ausbildung."</p>
+          </div>
+          <p class="david-bio">
+            David Schütze wuchs mit dem Handwerk auf. Schon als Jugendlicher faszinierte ihn die Präzision der Sanitärtechnik und der unmittelbare Effekt guter Arbeit. Nach seiner Ausbildung zum Anlagenmechaniker und dem Meisterabschluss im Sanitärfach gründete er seinen eigenen Betrieb – mit einem klaren Versprechen an seine Kunden: <strong>Bestleistung ohne Abkürzungen</strong>.
+          </p>
+          <p class="david-bio">
+            Was ihn auszeichnet, ist nicht allein sein technisches Können, sondern sein Verständnis für Menschen. <strong>Lange Kundenbeziehungen</strong> sind für ihn keine Marketingstrategie, sondern Ausdruck guter Arbeit. Wer einmal mit ihm zusammengearbeitet hat, weiß: Hier wird nicht nach dem günstigsten Weg gesucht, sondern nach dem richtigen.
+          </p>
+          <div class="david-vals">
+            <div class="david-val"><div class="dv-dot"></div><div class="dv-text">Meister im Sanitärfach<span>Staatlich geprüfter Meister</span></div></div>
+            <div class="david-val"><div class="dv-dot"></div><div class="dv-text">24/7 Erreichbarkeit<span>Persönlich für Notfälle</span></div></div>
+            <div class="david-val"><div class="dv-dot"></div><div class="dv-text">Langjährige Kundenbindung<span>Stammkunden seit Gründung</span></div></div>
+            <div class="david-val"><div class="dv-dot"></div><div class="dv-text">Premium-Materialien<span>Nur zertifizierte Markenprodukte</span></div></div>
+          </div>
+        </div>
       </div>
     </div>
+
   </div>
 </section>
 
-<!-- KONTAKT -->
+<!-- ══════════════════════════════════════
+     KONTAKT
+══════════════════════════════════════ -->
 <section id="kontakt">
   <div class="inner">
     <div class="lbl">Kontakt</div>
     <h2 class="stitle">Sprechen wir über<br><strong>Ihr Projekt</strong></h2>
     <div class="ko">
       <div class="kinf">
-        <div class="kr"><div class="krl">Adresse</div><div class="krv">Musterstraße 12<br>76137 Karlsruhe</div></div>
+        <div class="kr-row"><div class="krl">Adresse</div><div class="krv">Musterstraße 12<br>76137 Karlsruhe</div></div>
         <div class="kdiv"></div>
-        <div class="kr"><div class="krl">Telefon</div><div class="krv"><a href="tel:+497215550000">0721 555-0000</a></div></div>
+        <div class="kr-row"><div class="krl">Telefon</div><div class="krv"><a href="tel:+497215550000">0721 555-0000</a></div></div>
         <div class="kdiv"></div>
-        <div class="kr"><div class="krl">E-Mail</div><div class="krv"><a href="mailto:info@schuetze-haustechnik.de">info@schuetze-haustechnik.de</a></div></div>
+        <div class="kr-row"><div class="krl">E-Mail</div><div class="krv"><a href="/cdn-cgi/l/email-protection#99f0f7fff6d9eafaf1ecfcede3fcb4f1f8eceaedfcfaf1f7f0f2b7fdfc"><span class="__cf_email__" data-cfemail="d7beb9b1b897a4b4bfa2b2a3adb2fabfb6a2a4a3b2b4bfb9bebcf9b3b2">[email&#160;protected]</span></a></div></div>
         <div class="kdiv"></div>
-        <div class="kr"><div class="krl">Öffnungszeiten</div><div class="krv">Mo – Fr &nbsp;07:00 – 18:00 Uhr<br>Notdienst 24/7</div></div>
+        <div class="kr-row"><div class="krl">Öffnungszeiten</div><div class="krv">Mo – Fr &nbsp;07:00 – 18:00 Uhr<br>Notdienst 24/7</div></div>
         <div class="kdiv"></div>
-        <a href="tel:+497215550000" class="kem"><div class="edot"></div>Notfall-Hotline anrufen</a>
+        <a href="tel:+497215550000" class="kem">
+          <div class="edot"></div>
+          Notfall-Hotline anrufen
+        </a>
+        <a href="https://wa.me/497215550000?text=Notfall%3A%20Ich%20brauche%20dringend%20Hilfe." target="_blank" rel="noopener" class="btn-wa" style="margin-top:8px;">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          WhatsApp Notfall
+        </a>
       </div>
       <div class="kform">
         <h3>Nachricht senden</h3>
-        <div class="cgrid2">
+        <div class="bk-contact-grid">
           <div class="fg"><label>Vorname <span>*</span></label><input type="text" class="fc" placeholder="Max"></div>
           <div class="fg"><label>Nachname <span>*</span></label><input type="text" class="fc" placeholder="Mustermann"></div>
           <div class="fg"><label>E-Mail <span>*</span></label><input type="email" class="fc" placeholder="max@beispiel.de"></div>
-          <div class="fg"><label>Betreff</label><select class="fc"><option>Badsanierung anfragen</option><option>Heizung &amp; Wärmetechnik</option><option>Sanitär &amp; Installation</option><option>Notdienst</option><option>Sonstiges</option></select></div>
+          <div class="fg"><label>Betreff</label>
+            <select class="fc">
+              <option>Badsanierung anfragen</option>
+              <option>Reparatur &amp; Notdienst</option>
+              <option>Renovierung &amp; Modernisierung</option>
+              <option>Heizung &amp; Wärmetechnik</option>
+              <option>Sanitär &amp; Installation</option>
+              <option>Sonstiges</option>
+            </select>
+          </div>
           <div class="fg full"><label>Nachricht <span>*</span></label><textarea class="fc" rows="4" placeholder="Beschreiben Sie kurz Ihr Anliegen..."></textarea></div>
-          <div class="fg full"><div class="drow"><input type="checkbox" id="dg2"><label for="dg2">Ich stimme der Verarbeitung meiner Daten gemäß der <a href="#">Datenschutzerklärung</a> zu. Daten werden ausschließlich zur Bearbeitung meiner Anfrage verwendet und nicht an Dritte weitergegeben. <span>*</span></label></div></div>
+          <div class="fg full">
+            <div class="drow">
+              <input type="checkbox" id="k-dsgvo">
+              <label for="k-dsgvo">Ich stimme der Verarbeitung meiner Daten gemäß der <a href="#">Datenschutzerklärung</a> zu. Daten werden ausschließlich zur Bearbeitung meiner Anfrage genutzt und nicht weitergegeben. <span style="color:var(--orange)">*</span></label>
+            </div>
+          </div>
         </div>
-        <button class="btn-snd" onclick="subCont()">Nachricht senden</button>
+        <button class="btn-snd" onclick="kSubmit()">Nachricht senden</button>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
+<!-- ══════════════════════════════════════
+     FAQ
+══════════════════════════════════════ -->
+<section id="faq">
+  <div class="inner">
+    <div class="faq-layout">
+
+      <div class="faq-intro">
+        <div class="lbl">FAQ</div>
+        <h2 class="stitle">Häufige<br><strong>Fragen</strong></h2>
+        <p class="sdesc">Hier finden Sie Antworten auf die Fragen, die uns unsere Kunden am häufigsten stellen. Ist Ihre Frage nicht dabei? Melden Sie sich gerne direkt bei uns.</p>
+        <a href="#kontakt" class="btn-p" style="display:inline-flex;text-decoration:none;">Frage stellen</a>
+      </div>
+
+      <div class="faq-list">
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="faqToggle(this)">
+            Wie schnell können Sie im Notfall bei mir sein?
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <p>Unser Notdienst ist <strong>24 Stunden am Tag, 7 Tage die Woche</strong> erreichbar. Bei akuten Notfällen wie Rohrbrüchen oder Heizungsausfällen versuchen wir, innerhalb von <strong>30 bis 60 Minuten</strong> vor Ort zu sein – abhängig von Ihrem Standort im Raum Karlsruhe. Rufen Sie uns direkt an oder schreiben Sie uns per WhatsApp, damit wir sofort reagieren können.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="faqToggle(this)">
+            Was kostet eine Badsanierung – gibt es einen Richtwert?
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <p>Die Kosten einer Badsanierung variieren je nach Größe, Ausstattungswunsch und Zustand der Bestandsanlage erheblich. Wir erstellen Ihnen gerne einen <strong>kostenlosen, unverbindlichen Kostenvoranschlag</strong> nach einem kurzen Vor-Ort-Termin. Transparenz ist für uns selbstverständlich – Sie erhalten eine detaillierte Aufschlüsselung aller Positionen, ohne versteckte Kosten.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="faqToggle(this)">
+            Welche Marken und Materialien verwenden Sie?
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <p>Wir arbeiten ausschließlich mit <strong>zertifizierten Markenprodukten führender Hersteller</strong> wie Grohe, Hansgrohe, Viessmann, Geberit, Duravit oder Villeroy &amp; Boch. Günstigere Alternativen lehnen wir bewusst ab – unser Ziel ist ein Ergebnis, das nicht nur beim Einbau überzeugt, sondern <strong>dauerhaft zuverlässig</strong> bleibt. Auf Wunsch beraten wir Sie bei der Marken- und Modellauswahl.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="faqToggle(this)">
+            Wie weit ist Ihr Einzugsgebiet?
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <p>Unser Servicegebiet umfasst <strong>Karlsruhe und die gesamte Region im Umkreis von ca. 100 km</strong>. Dazu zählen unter anderem Ettlingen, Bruchsal, Rastatt, Baden-Baden, Pforzheim sowie Teile des Schwarzwalds und der Rheinebene. Bei größeren Projekten sprechen wir auch über Einsätze darüber hinaus – <a href="#kontakt">fragen Sie uns gerne</a>.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="faqToggle(this)">
+            Wie lange dauert eine typische Badsanierung?
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <p>Eine vollständige Badsanierung dauert je nach Umfang in der Regel <strong>1 bis 3 Wochen</strong>. Kleinere Umbauten und Teilsanierungen können oft in wenigen Tagen abgeschlossen werden. Wir legen vor Beginn gemeinsam mit Ihnen einen verbindlichen Zeitplan fest und halten diesen konsequent ein – pünktliche Fertigstellung ist für uns kein Bonus, sondern Grundanspruch.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-q" onclick="faqToggle(this)">
+            Bieten Sie auch Wartung und Jahresinspektionen an?
+            <div class="faq-icon"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+          </button>
+          <div class="faq-a">
+            <p>Ja – wir sind nicht nur Ihr Ansprechpartner für die Erstinstallation, sondern auch für die <strong>langfristige Betreuung Ihrer Anlagen</strong>. Wir bieten Wartungsverträge für Heizungsanlagen und Sanitärsysteme an, führen Jahresinspektionen durch und stehen Ihnen als dauerhafter Partner zur Seite. Viele unserer Kunden arbeiten seit der Gründung des Betriebs mit uns zusammen – das ist für uns der schönste Beweis für gute Arbeit.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     VORHER-NACHHER GALERIE
+══════════════════════════════════════ -->
+<section id="galerie">
+  <div class="inner">
+    <div class="gal-head">
+      <div class="lbl">Galerie</div>
+      <h2 class="stitle">Vorher &amp; <strong>Nachher</strong></h2>
+      <p class="sdesc" style="margin-top:6px;max-width:580px;">Bilder sagen mehr als Worte. Sehen Sie selbst, was hochwertige Handwerkskunst und erstklassige Materialien aus einem Raum machen können.</p>
+    </div>
+
+    <div class="gal-grid">
+
+      <div class="gal-item">
+        <div class="gal-compare">
+          <div class="gal-side gal-side-before">
+            <span class="gal-badge gal-badge-before">Vorher</span>
+            <div class="gal-placeholder"></div>
+          </div>
+          <div class="gal-side gal-side-after">
+            <span class="gal-badge gal-badge-after">Nachher</span>
+            <div class="gal-placeholder"></div>
+          </div>
+        </div>
+        <div class="gal-caption">
+          <div class="gal-cat">Badsanierung</div>
+          <div class="gal-title">Komplettbad – Einfamilienhaus</div>
+          <div class="gal-loc">Karlsruhe-Weststadt · 2024</div>
+        </div>
+      </div>
+
+      <div class="gal-item">
+        <div class="gal-compare">
+          <div class="gal-side gal-side-before">
+            <span class="gal-badge gal-badge-before">Vorher</span>
+            <div class="gal-placeholder"></div>
+          </div>
+          <div class="gal-side gal-side-after">
+            <span class="gal-badge gal-badge-after">Nachher</span>
+            <div class="gal-placeholder"></div>
+          </div>
+        </div>
+        <div class="gal-caption">
+          <div class="gal-cat">Renovierung</div>
+          <div class="gal-title">Badezimmer-Modernisierung</div>
+          <div class="gal-loc">Bruchsal · 2023</div>
+        </div>
+      </div>
+
+      <div class="gal-item">
+        <div class="gal-compare">
+          <div class="gal-side gal-side-before">
+            <span class="gal-badge gal-badge-before">Vorher</span>
+            <div class="gal-placeholder"></div>
+          </div>
+          <div class="gal-side gal-side-after">
+            <span class="gal-badge gal-badge-after">Nachher</span>
+            <div class="gal-placeholder"></div>
+          </div>
+        </div>
+        <div class="gal-caption">
+          <div class="gal-cat">Barrierefreiheit</div>
+          <div class="gal-title">Barrierefreies Bad – Bestandsobjekt</div>
+          <div class="gal-loc">Karlsruhe-Durlach · 2023</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="gal-cta">
+      <p><strong>Weitere Projekte auf Anfrage.</strong><br>Wir zeigen Ihnen gerne persönlich mehr aus unserer Arbeit – ehrlich, unverbindlich und ohne versteckte Kosten.</p>
+      <a href="#termin" class="btn-p" style="display:inline-flex;text-decoration:none;">Persönliche Beratung anfragen</a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     WHATSAPP FLOATING BUTTON
+══════════════════════════════════════ -->
+<a href="https://wa.me/497215550000?text=Hallo%2C%20ich%20brauche%20Hilfe%20–%20Notfall%3A" target="_blank" rel="noopener" class="wa-float" aria-label="WhatsApp Notfall">
+  <span class="wa-float-label">WhatsApp Notfall</span>
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+</a>
+
+<!-- ══════════════════════════════════════
+     FOOTER
+══════════════════════════════════════ -->
 <footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <div class="ln">David Schütze Haustechnik</div>
+      <div class="ls">Meisterbetrieb · Karlsruhe</div>
+      <p>Ihr zuverlässiger Partner für Badsanierung, Reparaturen und Haustechnik im Raum Karlsruhe. Preise auf Anfrage – transparent, fair und ohne versteckte Kosten.</p>
+    </div>
+    <div class="footer-social">
+      <!-- Instagram -->
+      <a href="https://instagram.com" target="_blank" rel="noopener" class="social-btn">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+        Instagram
+      </a>
+      <!-- Google Business -->
+      <a href="https://g.page/r" target="_blank" rel="noopener" class="social-btn">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z"/></svg>
+        Google Bewertungen
+      </a>
+      <!-- WhatsApp -->
+      <a href="https://wa.me/497215550000" target="_blank" rel="noopener" class="social-btn" style="background:rgba(37,211,102,.1);border-color:rgba(37,211,102,.25);color:rgba(255,255,255,.7);">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="fill:rgba(37,211,102,.8);"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        WhatsApp
+      </a>
+    </div>
+  </div>
   <div class="fi">
-    <div class="fc2">© 2026 David Schütze Haustechnik · Alle Rechte vorbehalten</div>
-    <div class="fls"><a href="#">Impressum</a><a href="#">Datenschutz</a><a href="#">AGB</a><a href="#">Cookie-Einstellungen</a></div>
+    <div class="fc2">© 2026 David Schütze Haustechnik · Meisterbetrieb in Karlsruhe</div>
+    <div class="fls">
+      <a href="#">Impressum</a>
+      <a href="#">Datenschutz</a>
+      <a href="#">AGB</a>
+      <a href="#" onclick="ckReopen();return false;">Cookie-Einstellungen</a>
+    </div>
   </div>
 </footer>
 
-<!-- MODAL -->
+<!-- SUCCESS MODAL -->
 <div class="mbg" id="modal">
   <div class="mbox">
     <div class="mtt">Vielen Dank</div>
-    <div class="mtx" id="mmsg">Ihre Anfrage wurde erfolgreich übermittelt. Wir melden uns innerhalb von 24 Stunden.</div>
+    <div class="mtx" id="modal-msg">Ihre Anfrage wurde erfolgreich übermittelt. Wir melden uns innerhalb von 24 Stunden.</div>
     <button class="btn-mc" onclick="document.getElementById('modal').classList.remove('open')">Schließen</button>
   </div>
 </div>
 
-<script>
-  // Header
-  window.addEventListener('scroll',()=>document.getElementById('mh').classList.toggle('sc',scrollY>50));
-  // Smooth scroll
-  document.querySelectorAll('a[href^="#"]').forEach(a=>{
-    a.addEventListener('click',e=>{
-      const t=document.querySelector(a.getAttribute('href'));
-      if(t){e.preventDefault();window.scrollTo({top:t.offsetTop-72,behavior:'smooth'});}
-    });
+<!-- ══════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════ -->
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+'use strict';
+
+// ── Header scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('mh').classList.toggle('sc', scrollY > 50);
+});
+
+// ── Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const id = a.getAttribute('href');
+    if (id === '#') return;
+    const t = document.querySelector(id);
+    if (t) { e.preventDefault(); window.scrollTo({ top: t.offsetTop - 74, behavior: 'smooth' }); }
   });
+});
 
-  // Booking
-  let svSvc='',svDay=null,svTime='',cy=2026,cm=3;
-  const mns=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
-  const dns=['Mo','Di','Mi','Do','Fr','Sa','So'];
+// ══════════════════════════════
+// COOKIE CONSENT
+// ══════════════════════════════
+const CK_KEY = 'dsk_consent_v1';
 
-  function selSvc(el,n){document.querySelectorAll('.sb').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');svSvc=n;}
-  function pickT(el){if(el.classList.contains('na'))return;document.querySelectorAll('.ts.sel').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');svTime=el.textContent.trim();}
+function ckShow() {
+  document.getElementById('ck').classList.add('show');
+  document.getElementById('ck-overlay').classList.add('show');
+}
+function ckHide() {
+  document.getElementById('ck').classList.remove('show');
+  document.getElementById('ck-overlay').classList.remove('show');
+}
+function ckToggleDetail() {
+  document.getElementById('ck-detail').classList.toggle('open');
+}
+function ckReopen() {
+  const s = localStorage.getItem(CK_KEY);
+  if (s) { const c = JSON.parse(s); document.getElementById('ck-analytics').checked = !!c.analytics; document.getElementById('ck-marketing').checked = !!c.marketing; }
+  document.getElementById('ck-detail').classList.add('open');
+  ckShow();
+}
+function ckStore(analytics, marketing) {
+  localStorage.setItem(CK_KEY, JSON.stringify({ necessary: true, analytics, marketing, ts: new Date().toISOString() }));
+  if (analytics) console.log('[DSK] Analytics: aktiviert');
+  if (marketing) console.log('[DSK] Marketing: aktiviert');
+  ckHide();
+}
+function ckAcceptAll() { document.getElementById('ck-analytics').checked = true; document.getElementById('ck-marketing').checked = true; ckStore(true, true); }
+function ckSaveEssential() { ckStore(false, false); }
+function ckSaveSelection() { ckStore(document.getElementById('ck-analytics').checked, document.getElementById('ck-marketing').checked); }
 
-  function renderCal(){
-    document.getElementById('mlbl').textContent=mns[cm]+' '+cy;
-    const g=document.getElementById('cg'); g.innerHTML='';
-    dns.forEach(d=>{const el=document.createElement('div');el.className='cdn';el.textContent=d;g.appendChild(el);});
-    const fd=new Date(cy,cm,1).getDay(),off=fd===0?6:fd-1;
-    for(let i=0;i<off;i++){const el=document.createElement('div');el.className='cd emp';g.appendChild(el);}
-    const dim=new Date(cy,cm+1,0).getDate(),tod=new Date();
-    for(let d=1;d<=dim;d++){
-      const el=document.createElement('div');el.className='cd';el.textContent=d;
-      const dt=new Date(cy,cm,d);
-      const we=dt.getDay()===0||dt.getDay()===6;
-      const past=dt<new Date(tod.getFullYear(),tod.getMonth(),tod.getDate());
-      if(we||past){el.classList.add('off');}
-      else{
-        if(d===tod.getDate()&&cm===tod.getMonth()&&cy===tod.getFullYear())el.classList.add('tod');
-        if(svDay===d)el.classList.add('sel');
-        el.addEventListener('click',()=>{document.querySelectorAll('.cd.sel').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');svDay=d;document.getElementById('tp').style.display='block';});
-      }
-      g.appendChild(el);
+(function() {
+  if (!localStorage.getItem(CK_KEY)) setTimeout(ckShow, 800);
+})();
+
+// ══════════════════════════════
+// BOOKING TOOL
+// ══════════════════════════════
+let bkSvc = '', bkDay = null, bkTime = '', bkCy = 2026, bkCm = 3;
+const MNS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const DNS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+
+function bkSelSvc(el, name) {
+  document.querySelectorAll('.bk-svc-btn').forEach(b => { b.classList.remove('sel'); b.querySelector('.bsb-check').style.background = ''; });
+  el.classList.add('sel');
+  bkSvc = name;
+}
+
+function bkSelT(el) {
+  if (el.classList.contains('na')) return;
+  document.querySelectorAll('.t-slot.sel').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+  bkTime = el.textContent.trim();
+}
+
+function bkRenderCal() {
+  document.getElementById('bk-mlbl').textContent = MNS[bkCm] + ' ' + bkCy;
+  const g = document.getElementById('bk-cgrid');
+  g.innerHTML = '';
+  DNS.forEach(d => { const el = document.createElement('div'); el.className = 'cal-dn'; el.textContent = d; g.appendChild(el); });
+  const fd = new Date(bkCy, bkCm, 1).getDay(), off = fd === 0 ? 6 : fd - 1;
+  for (let i = 0; i < off; i++) { const el = document.createElement('div'); el.className = 'cal-d emp'; g.appendChild(el); }
+  const dim = new Date(bkCy, bkCm + 1, 0).getDate(), tod = new Date();
+  for (let d = 1; d <= dim; d++) {
+    const el = document.createElement('div'); el.className = 'cal-d'; el.textContent = d;
+    const dt = new Date(bkCy, bkCm, d);
+    const isWe = dt.getDay() === 0 || dt.getDay() === 6;
+    const isPast = dt < new Date(tod.getFullYear(), tod.getMonth(), tod.getDate());
+    if (isWe || isPast) { el.classList.add('off'); }
+    else {
+      if (d === tod.getDate() && bkCm === tod.getMonth() && bkCy === tod.getFullYear()) el.classList.add('tod');
+      if (bkDay === d) el.classList.add('sel');
+      el.addEventListener('click', () => {
+        document.querySelectorAll('#bk-cgrid .cal-d.sel').forEach(e => e.classList.remove('sel'));
+        el.classList.add('sel'); bkDay = d;
+      });
     }
+    g.appendChild(el);
   }
-  function chM(d){cm+=d;if(cm>11){cm=0;cy++;}if(cm<0){cm=11;cy--;}svDay=null;renderCal();}
-  renderCal();
+}
 
-  function g2(){
-    document.getElementById('sp1').classList.remove('act');
-    document.getElementById('sp2').classList.add('act');
-    document.getElementById('d1').className='sdot dn';
-    document.getElementById('d2').className='sdot act';
-    document.getElementById('l1').classList.remove('act');
-    document.getElementById('l2').classList.add('act');
-    const tags=document.getElementById('stags');tags.innerHTML='';
-    [svSvc,svDay?(mns[cm]+' '+svDay):'',svTime].filter(Boolean).forEach(s=>{const t=document.createElement('div');t.className='stag';t.textContent=s;tags.appendChild(t);});
+function bkChM(dir) { bkCm += dir; if (bkCm > 11) { bkCm = 0; bkCy++; } if (bkCm < 0) { bkCm = 11; bkCy--; } bkDay = null; bkRenderCal(); }
+
+function bkGo(step) {
+  // Update step indicators
+  [1,2,3].forEach(i => {
+    const n = document.getElementById('sn'+i), l = document.getElementById('sl'+i);
+    n.className = 'bk-step-num' + (i < step ? ' dn' : i === step ? ' act' : '');
+    l.className = 'bk-step-label' + (i === step ? ' act' : '');
+  });
+  // Show correct panel
+  document.querySelectorAll('.bk-panel').forEach(p => p.classList.remove('act'));
+  document.getElementById('bk'+step).classList.add('act');
+  // Build summary tags for step 3
+  if (step >= 2) {
+    const s1 = document.getElementById('bk-sum1'); s1.innerHTML = '';
+    [bkSvc].filter(Boolean).forEach(t => { const el = document.createElement('div'); el.className='stag'; el.textContent=t; s1.appendChild(el); });
   }
-  function g1(){
-    document.getElementById('sp2').classList.remove('act');
-    document.getElementById('sp1').classList.add('act');
-    document.getElementById('d2').className='sdot';
-    document.getElementById('d1').className='sdot act';
-    document.getElementById('l2').classList.remove('act');
-    document.getElementById('l1').classList.add('act');
+  if (step === 3) {
+    const s2 = document.getElementById('bk-sum2'); s2.innerHTML = '';
+    [bkSvc, bkDay ? (MNS[bkCm]+' '+bkDay) : '', bkTime].filter(Boolean).forEach(t => { const el = document.createElement('div'); el.className='stag'; el.textContent=t; s2.appendChild(el); });
   }
-  function subBook(){
-    if(!document.getElementById('dg1').checked){alert('Bitte stimmen Sie der Datenschutzerklärung zu.');return;}
-    document.getElementById('mmsg').textContent='Ihr Terminwunsch wurde übermittelt. Wir bestätigen innerhalb von 24 Stunden.';
-    document.getElementById('modal').classList.add('open');
+}
+
+function bkSubmit() {
+  if (!document.getElementById('bk-dsgvo').checked) { alert('Bitte stimmen Sie der Datenschutzerklärung zu.'); return; }
+  document.getElementById('modal-msg').textContent = 'Ihr Terminwunsch wurde übermittelt. Wir bestätigen innerhalb von 24 Stunden telefonisch oder per E-Mail.';
+  document.getElementById('modal').classList.add('open');
+}
+
+function kSubmit() {
+  if (!document.getElementById('k-dsgvo').checked) { alert('Bitte stimmen Sie der Datenschutzerklärung zu.'); return; }
+    document.getElementById('modal-msg').textContent = 'Ihre Nachricht wurde erfolgreich gesendet. Wir antworten Ihnen so schnell wie möglich.';
+  document.getElementById('modal').classList.add('open');
+}
+
+// ══════════════════════════════
+// FAQ ACCORDION
+// ══════════════════════════════
+function faqToggle(btn) {
+  const item = btn.closest('.faq-item');
+  const answer = item.querySelector('.faq-a');
+  const isOpen = btn.classList.contains('open');
+  // Close all open items first
+  document.querySelectorAll('.faq-q.open').forEach(q => {
+    q.classList.remove('open');
+    q.closest('.faq-item').querySelector('.faq-a').classList.remove('open');
+  });
+  // Open the clicked one if it was previously closed
+  if (!isOpen) {
+    btn.classList.add('open');
+    answer.classList.add('open');
   }
-  function subCont(){
-    if(!document.getElementById('dg2').checked){alert('Bitte stimmen Sie der Datenschutzerklärung zu.');return;}
-    document.getElementById('mmsg').textContent='Ihre Nachricht wurde erfolgreich gesendet. Wir antworten Ihnen so schnell wie möglich.';
-    document.getElementById('modal').classList.add('open');
+}
+
+// ── Init calendar
+bkRenderCal();
+
+// ── Leaflet Map: Karlsruhe + 100km Serviceradius
+(function initMap() {
+  // Warte bis DOM geladen, dann Karte initialisieren
+  function setupMap() {
+    const el = document.getElementById('karte');
+    if (!el || typeof L === 'undefined') { setTimeout(setupMap, 200); return; }
+
+    // Karlsruhe Koordinaten
+    const KA = [49.0069, 8.4037];
+
+    // Karte initialisieren – gezoomt auf Karlsruhe + Umgebung
+    const map = L.map('karte', {
+      center: KA,
+      zoom: 8,
+      zoomControl: false,
+      scrollWheelZoom: false,
+      dragging: false,
+      doubleClickZoom: false,
+      touchZoom: false,
+      attributionControl: false
+    });
+
+    // Elegante, helle Kacheln (CartoDB Positron – minimalistisch)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+      subdomains: 'abcd',
+      maxZoom: 14,
+      opacity: 0.85
+    }).addTo(map);
+
+    // 100 km Radius – eleganter oranger Kreis
+    L.circle(KA, {
+      radius: 100000,           // 100 km in Metern
+      color: '#c8723a',
+      weight: 1.5,
+      opacity: 0.55,
+      fillColor: '#c8723a',
+      fillOpacity: 0.06
+    }).addTo(map);
+
+    // Karlsruhe Marker – eigenes Icon
+    const kaIcon = L.divIcon({
+      html: `<div style="
+        width:14px;height:14px;
+        background:#c8723a;
+        border:2.5px solid #fff;
+        border-radius:50%;
+        box-shadow:0 0 0 3px rgba(200,114,58,.25), 0 2px 8px rgba(0,0,0,.2);
+      "></div>`,
+      className: '',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
+    });
+
+    L.marker(KA, { icon: kaIcon }).addTo(map)
+      .bindTooltip('<strong style="color:#c8723a">David Schütze Haustechnik</strong><br><span style="font-size:11px;color:#666">Karlsruhe · Serviceradius 100 km</span>', {
+        permanent: true,
+        direction: 'right',
+        offset: [10, 0],
+        className: 'ka-tooltip'
+      });
+
+    // Kleines Attributions-Label
+    L.control.attribution({ prefix: '' })
+      .addAttribution('<span style="font-size:9px">© <a href="https://carto.com">CARTO</a> · <a href="https://www.openstreetmap.org">OSM</a></span>')
+      .addTo(map);
   }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupMap);
+  } else {
+    setupMap();
+  }
+})();
 </script>
 </body>
 </html>
