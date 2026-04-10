@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>David Schütze Haustechnik – Sanitär & Heizung Karlsruhe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:        #1a2c3d;
+    --orange:      #c8723a;
+    --orange-h:    #b56230;
+    --blue:        #2d5fa6;
+    --blue-h:      #254e8a;
+    --white:       #fafaf8;
+    --gray:        #f0ede8;
+    --gray-mid:    #c4beb6;
+    --muted:       #6b7885;
+    --T:           0.28s cubic-bezier(0.4,0,0.2,1);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'DM Sans',sans-serif;color:var(--navy);background:var(--white);overflow-x:hidden}
+
+  /* COOKIE */
+  #ck{position:fixed;bottom:0;left:0;right:0;background:var(--navy);color:var(--white);z-index:9999;padding:16px 48px;display:flex;align-items:center;justify-content:space-between;gap:24px;border-top:2px solid var(--orange);box-shadow:0 -4px 28px rgba(0,0,0,.25);transition:transform .4s ease}
+  #ck.gone{transform:translateY(110%)}
+  .ck-t{font-size:.82rem;line-height:1.6;max-width:680px}
+  .ck-t a{color:var(--orange);text-decoration:none}
+  .ck-a{display:flex;gap:10px;flex-shrink:0}
+  .ck-ok{background:var(--orange);color:#fff;border:none;padding:9px 22px;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;cursor:pointer;transition:background var(--T)}
+  .ck-ok:hover{background:var(--orange-h)}
+  .ck-no{background:transparent;color:var(--gray-mid);border:1px solid var(--gray-mid);padding:9px 22px;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:.82rem;cursor:pointer;transition:all var(--T)}
+  .ck-no:hover{border-color:#fff;color:#fff}
+
+  /* HEADER */
+  header{position:fixed;top:0;left:0;right:0;z-index:1000;height:68px;background:rgba(26,44,61,.97);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.07);transition:box-shadow var(--T)}
+  header.sc{box-shadow:0 4px 28px rgba(0,0,0,.35)}
+  .hi{max-width:1440px;margin:0 auto;height:100%;display:flex;align-items:center;justify-content:space-between;padding:0 40px;gap:20px}
+  .logo{display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0}
+  .lm{width:38px;height:38px;background:var(--orange);display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-weight:700;font-size:1.2rem;color:#fff;clip-path:polygon(0 0,100% 0,100% 75%,85% 100%,0 100%)}
+  .lt{display:flex;flex-direction:column;line-height:1.15}
+  .ln{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.05rem;color:#fff}
+  .ls{font-size:.62rem;color:var(--orange);letter-spacing:.18em;text-transform:uppercase}
+  nav{display:flex;align-items:center;gap:2px}
+  .ni{position:relative}
+  .ni::after{content:'';position:absolute;top:100%;left:0;right:0;height:14px}
+  .nl{display:block;padding:8px 14px;color:rgba(255,255,255,.82);text-decoration:none;font-size:.85rem;letter-spacing:.03em;border-radius:3px;cursor:pointer;white-space:nowrap;transition:color var(--T),background var(--T)}
+  .nl:hover,.ni:hover>.nl{color:#fff;background:rgba(255,255,255,.07)}
+  .nd{position:absolute;top:calc(100% + 14px);left:50%;background:var(--navy);min-width:228px;border:1px solid rgba(255,255,255,.09);border-top:2px solid var(--orange);border-radius:0 0 6px 6px;padding:6px 0;opacity:0;visibility:hidden;transform:translateX(-50%) translateY(-6px);transition:opacity .2s,transform .2s,visibility .2s;box-shadow:0 18px 40px rgba(0,0,0,.3);pointer-events:none}
+  .ni:hover .nd{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);pointer-events:all}
+  .nd a{display:block;padding:9px 20px;color:rgba(255,255,255,.78);text-decoration:none;font-size:.83rem;transition:all var(--T)}
+  .nd a:hover{color:#fff;background:rgba(255,255,255,.06);padding-left:26px}
+  .btn-em{display:flex;align-items:center;gap:7px;background:var(--orange);color:#fff;border:none;padding:9px 18px;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:.83rem;font-weight:500;cursor:pointer;text-decoration:none;flex-shrink:0;letter-spacing:.03em;transition:background var(--T),transform var(--T),box-shadow var(--T);animation:pls 3s infinite}
+  .btn-em:hover{background:var(--orange-h);transform:translateY(-1px);box-shadow:0 4px 18px rgba(200,114,58,.45);animation:none}
+  @keyframes pls{0%,100%{box-shadow:0 0 0 0 rgba(200,114,58,.35)}55%{box-shadow:0 0 0 8px rgba(200,114,58,0)}}
+  .edot{width:7px;height:7px;border-radius:50%;background:#fff;animation:blk 1.4s infinite}
+  @keyframes blk{0%,100%{opacity:1}50%{opacity:.3}}
+
+  /* HERO */
+  #hero{position:relative;height:100vh;min-height:680px;display:flex;align-items:flex-end;overflow:hidden}
+  .hbg{position:absolute;inset:0;background:linear-gradient(135deg,#0d1e2b 0%,#1a3a52 55%,#0d1e2b 100%)}
+  .hbg::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 68% 48%,rgba(45,95,166,.18) 0%,transparent 55%),radial-gradient(ellipse at 25% 75%,rgba(200,114,58,.09) 0%,transparent 50%)}
+  .hphoto{position:absolute;right:0;top:0;bottom:0;width:52%;overflow:hidden}
+  .hphoto::before{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(to left,transparent 55%,#0d1e2b 100%),linear-gradient(to top,#0d1e2b 0%,transparent 28%)}
+  .hpi{width:100%;height:100%;background:linear-gradient(160deg,#1e3a52 0%,#243d54 50%,#1a3048 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:.4}
+  .phi{color:rgba(255,255,255,.22);font-size:.72rem;letter-spacing:.12em;text-transform:uppercase}
+  .phl{width:60px;height:1px;background:rgba(255,255,255,.12)}
+  .hov{position:absolute;inset:0;background:linear-gradient(to top,rgba(13,30,43,.96) 0%,rgba(13,30,43,.35) 55%,transparent 100%)}
+  .hc{position:relative;z-index:2;max-width:1440px;margin:0 auto;width:100%;padding:0 40px 80px;display:grid;grid-template-columns:1.1fr 0.9fr;align-items:end;gap:60px}
+  .hbadge{display:inline-flex;align-items:center;gap:8px;background:rgba(200,114,58,.13);border:1px solid rgba(200,114,58,.33);color:var(--orange);padding:5px 13px;border-radius:100px;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;font-weight:500;margin-bottom:18px}
+  .bdot{width:5px;height:5px;border-radius:50%;background:var(--orange)}
+  h1{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,5.5vw,5rem);font-weight:300;color:#fff;line-height:1.05;letter-spacing:-.01em;margin-bottom:18px}
+  h1 strong{font-weight:600}
+  h1 em{font-style:normal;color:var(--orange)}
+  .hsub{color:rgba(255,255,255,.6);font-size:1rem;line-height:1.72;max-width:460px;margin-bottom:32px;font-weight:300}
+  .hact{display:flex;align-items:center;gap:14px}
+  .btn-p{display:inline-flex;align-items:center;gap:7px;background:var(--orange);color:#fff;padding:12px 28px;border-radius:3px;text-decoration:none;font-size:.87rem;font-weight:500;letter-spacing:.04em;border:2px solid var(--orange);transition:all var(--T)}
+  .btn-p:hover{background:var(--orange-h);border-color:var(--orange-h);transform:translateY(-2px);box-shadow:0 8px 22px rgba(200,114,58,.3)}
+  .btn-g{display:inline-flex;align-items:center;background:transparent;color:rgba(255,255,255,.82);padding:12px 28px;border-radius:3px;text-decoration:none;font-size:.87rem;letter-spacing:.04em;border:2px solid rgba(255,255,255,.28);transition:all var(--T)}
+  .btn-g:hover{border-color:#fff;color:#fff;transform:translateY(-2px)}
+  .hright{display:flex;align-items:flex-end;justify-content:flex-end}
+  .stat-row{display:flex;gap:12px}
+  .sc{background:rgba(255,255,255,.07);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:16px 22px;text-align:center}
+  .sn{font-family:'Cormorant Garamond',serif;font-size:2rem;font-weight:600;color:#fff;line-height:1}
+  .sl{font-size:.65rem;color:rgba(255,255,255,.45);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+  .hscroll{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:5px;color:rgba(255,255,255,.35);font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;animation:bob 2.2s infinite}
+  @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(7px)}}
+  .sline{width:1px;height:36px;background:linear-gradient(to bottom,transparent,rgba(255,255,255,.35))}
+
+  /* TICKER */
+  #ticker{background:var(--gray);border-top:1px solid rgba(0,0,0,.06);border-bottom:1px solid rgba(0,0,0,.06);overflow:hidden}
+  .tw{display:flex;align-items:stretch}
+  .tlb{flex-shrink:0;padding:18px 28px;background:var(--navy);display:flex;align-items:center;font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.45);white-space:nowrap;border-right:1px solid rgba(255,255,255,.08)}
+  .tt{flex:1;overflow:hidden;display:flex;align-items:center}
+  .ti{display:flex;align-items:center;gap:56px;animation:sl2 30s linear infinite;white-space:nowrap;padding:18px 0}
+  @keyframes sl2{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .titem{font-size:.8rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);flex-shrink:0}
+  .tsep{width:4px;height:4px;border-radius:50%;background:var(--orange);opacity:.5;flex-shrink:0}
+
+  /* BOOKING */
+  #termin{background:var(--navy);padding:0;border-bottom:1px solid rgba(255,255,255,.06)}
+  .bshell{max-width:1440px;margin:0 auto;display:grid;grid-template-columns:320px 1fr;min-height:500px}
+  .bside{padding:50px 40px;border-right:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;justify-content:center}
+  .slabel{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);margin-bottom:12px;display:flex;align-items:center;gap:10px}
+  .slabel::after{content:'';flex:0 0 30px;height:1px;background:var(--orange)}
+  .bside h2{font-family:'Cormorant Garamond',serif;font-size:1.95rem;font-weight:400;color:#fff;line-height:1.12;margin-bottom:16px}
+  .bside h2 strong{font-weight:600}
+  .bside p{font-size:.86rem;color:rgba(255,255,255,.5);line-height:1.72;margin-bottom:24px;font-weight:300}
+  .sc2{display:flex;flex-direction:column;gap:9px}
+  .sr{display:flex;align-items:center;gap:10px;font-size:.83rem;color:rgba(255,255,255,.55)}
+  .sr a{color:rgba(255,255,255,.7);text-decoration:none;transition:color var(--T)}
+  .sr a:hover{color:var(--orange)}
+  .srdot{width:4px;height:4px;border-radius:50%;background:var(--orange);flex-shrink:0}
+  .bmain{padding:46px 56px;display:flex;flex-direction:column;justify-content:center}
+  .stepind{display:flex;align-items:center;gap:0;margin-bottom:34px}
+  .sdot{width:28px;height:28px;border-radius:50%;border:1.5px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:rgba(255,255,255,.4);font-weight:500;transition:all .3s}
+  .sdot.act{border-color:var(--orange);color:#fff;background:var(--orange)}
+  .sdot.dn{border-color:var(--orange);color:var(--orange);background:rgba(200,114,58,.12)}
+  .sline2{flex:1;height:1px;background:rgba(255,255,255,.1);margin:0 8px;max-width:60px}
+  .slbl2{font-size:.72rem;color:rgba(255,255,255,.4);margin-left:10px;letter-spacing:.06em}
+  .slbl2.act{color:rgba(255,255,255,.7)}
+  .spanel{display:none}
+  .spanel.act{display:block}
+  .sg{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:26px}
+  .sb{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:4px;padding:14px 8px;text-align:center;cursor:pointer;transition:all var(--T);color:rgba(255,255,255,.7);font-size:.77rem;line-height:1.45;font-family:'DM Sans',sans-serif}
+  .sb:hover{border-color:rgba(200,114,58,.5);color:#fff;background:rgba(200,114,58,.08)}
+  .sb.sel{border-color:var(--orange);background:rgba(200,114,58,.14);color:#fff}
+  .sb-mark{width:18px;height:18px;border:1.5px solid currentColor;border-radius:2px;margin:0 auto 8px;opacity:.4;transition:all var(--T)}
+  .sb.sel .sb-mark{border-color:var(--orange);background:var(--orange);opacity:1}
+  .crow{display:grid;grid-template-columns:auto 1fr;gap:22px;align-items:start}
+  .mcal{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:4px;padding:16px;min-width:238px}
+  .mch{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .carro{background:none;border:1px solid rgba(255,255,255,.12);border-radius:3px;width:28px;height:28px;color:rgba(255,255,255,.6);cursor:pointer;font-size:.9rem;transition:all var(--T);display:flex;align-items:center;justify-content:center}
+  .carro:hover{background:var(--orange);border-color:var(--orange);color:#fff}
+  .cml{font-size:.85rem;font-weight:500;color:#fff}
+  .cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+  .cdn{font-size:.62rem;text-align:center;color:rgba(255,255,255,.3);padding:3px 0;letter-spacing:.04em}
+  .cd{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:.75rem;border-radius:3px;cursor:pointer;color:rgba(255,255,255,.7);transition:all var(--T)}
+  .cd:hover:not(.off):not(.emp){background:var(--orange);color:#fff}
+  .cd.sel{background:var(--orange);color:#fff;font-weight:500}
+  .cd.tod{outline:1px solid var(--orange);color:var(--orange)}
+  .cd.off{color:rgba(255,255,255,.2);cursor:default}
+  .tpanel{}
+  .tp-title{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.42);margin-bottom:8px}
+  .tgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:14px}
+  .ts{padding:7px 4px;text-align:center;font-size:.78rem;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:3px;cursor:pointer;color:rgba(255,255,255,.7);transition:all var(--T)}
+  .ts:hover{border-color:var(--orange);color:#fff}
+  .ts.sel{background:var(--orange);color:#fff;border-color:var(--orange)}
+  .ts.na{color:rgba(255,255,255,.2);cursor:not-allowed;text-decoration:line-through}
+  .snav{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-top:26px}
+  .btn-nx,.btn-bk,.btn-sub{padding:11px 26px;border-radius:3px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;letter-spacing:.04em;transition:all var(--T)}
+  .btn-nx,.btn-sub{background:var(--orange);color:#fff}
+  .btn-nx:hover,.btn-sub:hover{background:var(--orange-h);transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,114,58,.35)}
+  .btn-bk{background:rgba(255,255,255,.07);color:rgba(255,255,255,.7);border:1px solid rgba(255,255,255,.12)}
+  .btn-bk:hover{background:rgba(255,255,255,.12);color:#fff}
+  .cgrid2{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+  .fg{display:flex;flex-direction:column;gap:5px}
+  .fg.full{grid-column:1/-1}
+  .fg label{font-size:.72rem;letter-spacing:.06em;color:rgba(255,255,255,.52)}
+  .fg label span{color:var(--orange)}
+  .fc{width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.11);border-radius:3px;padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:.87rem;color:#fff;transition:border-color var(--T),background var(--T);-webkit-appearance:none}
+  .fc::placeholder{color:rgba(255,255,255,.25)}
+  .fc:focus{outline:none;border-color:var(--orange);background:rgba(255,255,255,.1)}
+  .fc option{background:var(--navy)}
+  .drow{display:flex;align-items:flex-start;gap:9px;margin-top:2px}
+  .drow input{margin-top:2px;accent-color:var(--orange);flex-shrink:0}
+  .drow label{font-size:.72rem;color:rgba(255,255,255,.42);line-height:1.55}
+  .drow a{color:var(--orange);text-decoration:none}
+  .sum-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+  .stag{background:rgba(200,114,58,.14);border:1px solid rgba(200,114,58,.3);color:var(--orange);font-size:.73rem;padding:4px 12px;border-radius:100px}
+
+  /* SECTIONS */
+  section{padding:88px 40px}
+  .inner{max-width:1440px;margin:0 auto}
+  .lbl{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--orange);font-weight:500;margin-bottom:10px;display:flex;align-items:center;gap:10px}
+  .lbl::after{content:'';flex:0 0 34px;height:1px;background:var(--orange)}
+  .stitle{font-family:'Cormorant Garamond',serif;font-size:clamp(1.9rem,3.5vw,3rem);font-weight:400;line-height:1.1;color:var(--navy);margin-bottom:13px}
+  .stitle strong{font-weight:600}
+  .sdesc{color:var(--muted);font-size:.95rem;line-height:1.75;font-weight:300}
+
+  /* LEISTUNGEN */
+  #leistungen{background:var(--white)}
+  .svc-out{display:grid;grid-template-columns:268px 1fr;gap:68px;align-items:start}
+  .svc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+  .svc{background:var(--gray);padding:30px 26px;position:relative;overflow:hidden;transition:all var(--T)}
+  .svc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--orange);transform:scaleY(0);transition:transform .3s;transform-origin:bottom}
+  .svc:hover{background:var(--navy)}
+  .svc:hover::before{transform:scaleY(1)}
+  .svc:hover .svct{color:#fff}
+  .svc:hover .svcd{color:rgba(255,255,255,.52)}
+  .svc:hover .svcn{color:rgba(255,255,255,.07)}
+  .svcn{font-family:'Cormorant Garamond',serif;font-size:2.7rem;font-weight:300;color:rgba(0,0,0,.07);line-height:1;margin-bottom:-4px}
+  .svcl{width:22px;height:1.5px;background:var(--orange);margin-bottom:12px}
+  .svct{font-family:'Cormorant Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--navy);margin-bottom:7px;transition:color var(--T)}
+  .svcd{font-size:.81rem;color:var(--muted);line-height:1.65;transition:color var(--T)}
+  .svc.last{grid-column:1/-1;display:grid;grid-template-columns:auto 1fr;gap:0 70px}
+  .svc.last .svcd{grid-column:2;grid-row:1/-1;padding-top:0;align-self:center}
+
+  /* REFERENZEN */
+  #referenzen{background:var(--navy);position:relative;overflow:hidden}
+  #referenzen::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 60%,rgba(45,95,166,.12) 0%,transparent 55%)}
+  #referenzen .stitle{color:#fff}
+  #referenzen .lbl{color:var(--orange)}
+  #referenzen .sdesc{color:rgba(255,255,255,.48)}
+  .ref-out{display:grid;grid-template-columns:260px 1fr;gap:68px;align-items:start}
+  .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .pc{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:3px;overflow:hidden;transition:all var(--T)}
+  .pc:hover{transform:translateY(-4px);border-color:rgba(200,114,58,.35)}
+  .pimg{height:172px;background:linear-gradient(135deg,#243648 0%,#1a2c3d 100%);position:relative;display:flex;align-items:center;justify-content:center}
+  .picon{width:36px;height:36px;border:1px solid rgba(255,255,255,.14);border-radius:50%;opacity:.28}
+  .pimg::after{content:'Foto folgt';position:absolute;bottom:8px;right:10px;font-size:.6rem;color:rgba(255,255,255,.18);letter-spacing:.08em;text-transform:uppercase}
+  .pi{padding:18px}
+  .pt{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--orange);margin-bottom:5px}
+  .pti{font-family:'Cormorant Garamond',serif;font-size:1.1rem;font-weight:600;color:#fff;margin-bottom:5px}
+  .pl{font-size:.77rem;color:rgba(255,255,255,.36)}
+
+  /* BEWERTUNGEN */
+  #bewertungen{background:var(--gray)}
+  .rev-out{display:grid;grid-template-columns:260px 1fr;gap:68px;align-items:start}
+  .gb{display:flex;align-items:center;gap:12px;margin-top:26px;background:#fff;padding:14px 18px;border-radius:4px;box-shadow:0 4px 18px rgba(0,0,0,.07)}
+  .glo{font-family:'Cormorant Garamond',serif;font-size:1.7rem;font-weight:700;color:var(--navy)}
+  .gs{font-family:'Cormorant Garamond',serif;font-size:1.85rem;font-weight:600;color:var(--navy);line-height:1}
+  .gst{color:#e8b84b;font-size:.88rem}
+  .gc{font-size:.72rem;color:var(--muted);margin-top:2px}
+  .rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .rc{background:#fff;padding:24px;border-radius:3px;box-shadow:0 4px 16px rgba(0,0,0,.05);transition:all var(--T);border-top:2px solid transparent}
+  .rc:hover{transform:translateY(-3px);border-top-color:var(--orange);box-shadow:0 8px 26px rgba(0,0,0,.1)}
+  .rst{color:#e8b84b;font-size:.85rem;margin-bottom:10px}
+  .rtx{font-size:.87rem;color:var(--muted);line-height:1.72;font-style:italic;margin-bottom:16px;font-weight:300}
+  .rau{display:flex;align-items:center;gap:10px}
+  .rav{width:34px;height:34px;border-radius:50%;background:var(--navy);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:600;color:#fff;flex-shrink:0}
+  .rn{font-size:.82rem;font-weight:500;color:var(--navy)}
+  .rd{font-size:.72rem;color:var(--muted)}
+
+  /* ÜBER UNS */
+  #ueber{background:var(--white);overflow:hidden}
+  .ue-out{display:grid;grid-template-columns:1fr 1fr;gap:68px;align-items:center}
+  .umap{height:420px;background:var(--gray);border-radius:3px;overflow:hidden}
+  .umap svg{width:100%;height:100%}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(0,0,0,.08);margin-top:26px}
+  .kpi{background:var(--white);padding:18px;text-align:center}
+  .kpin{font-family:'Cormorant Garamond',serif;font-size:1.95rem;font-weight:600;color:var(--orange)}
+  .kpil{font-size:.7rem;color:var(--muted);margin-top:3px;letter-spacing:.04em}
+
+  /* KONTAKT */
+  #kontakt{background:var(--navy);position:relative;overflow:hidden}
+  #kontakt::after{content:'';position:absolute;bottom:-100px;right:-80px;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle,rgba(45,95,166,.14) 0%,transparent 70%)}
+  #kontakt .stitle{color:#fff}
+  #kontakt .lbl{color:var(--orange)}
+  .ko{display:grid;grid-template-columns:1fr 1.6fr;gap:78px;align-items:start;margin-top:48px}
+  .kinf{display:flex;flex-direction:column;gap:20px}
+  .kr{}.krl{font-size:.67rem;letter-spacing:.14em;text-transform:uppercase;color:var(--orange);margin-bottom:3px}
+  .krv{font-size:.9rem;color:rgba(255,255,255,.72);line-height:1.55}
+  .krv a{color:rgba(255,255,255,.72);text-decoration:none;transition:color var(--T)}
+  .krv a:hover{color:var(--orange)}
+  .kdiv{height:1px;background:rgba(255,255,255,.07)}
+  .kem{display:inline-flex;align-items:center;gap:8px;background:var(--orange);color:#fff;border:none;padding:10px 20px;border-radius:3px;cursor:pointer;text-decoration:none;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;transition:all var(--T)}
+  .kem:hover{background:var(--orange-h);transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,114,58,.4)}
+  .kform{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);padding:36px;border-radius:3px;border-top:2px solid var(--blue);position:relative;z-index:1}
+  .kform h3{font-family:'Cormorant Garamond',serif;font-size:1.4rem;color:#fff;margin-bottom:22px}
+  .kform .fc{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.12)}
+  .kform .fg label{color:rgba(255,255,255,.52)}
+  .btn-snd{width:100%;padding:13px;background:var(--orange);color:#fff;border:none;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:.87rem;font-weight:500;cursor:pointer;letter-spacing:.04em;transition:all var(--T);margin-top:4px}
+  .btn-snd:hover{background:var(--orange-h);transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,114,58,.38)}
+
+  /* FOOTER */
+  footer{background:#0c1c28;padding:30px 40px;border-top:1px solid rgba(255,255,255,.05)}
+  .fi{max-width:1440px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px}
+  .fc2{font-size:.77rem;color:rgba(255,255,255,.28)}
+  .fls{display:flex;gap:22px}
+  .fls a{font-size:.77rem;color:rgba(255,255,255,.32);text-decoration:none;transition:color var(--T)}
+  .fls a:hover{color:var(--orange)}
+
+  /* MODAL */
+  .mbg{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:9990;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:all .3s}
+  .mbg.open{opacity:1;visibility:visible}
+  .mbox{background:#fff;border-radius:4px;padding:42px;max-width:420px;width:90%;text-align:center;transform:translateY(16px);transition:transform .3s;border-top:3px solid var(--orange)}
+  .mbg.open .mbox{transform:translateY(0)}
+  .mtt{font-family:'Cormorant Garamond',serif;font-size:1.7rem;color:var(--navy);margin-bottom:10px}
+  .mtx{font-size:.88rem;color:var(--muted);line-height:1.65;margin-bottom:22px}
+  .btn-mc{background:var(--orange);color:#fff;border:none;padding:10px 28px;border-radius:3px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;transition:background var(--T)}
+  .btn-mc:hover{background:var(--orange-h)}
+
+  /* RESPONSIVE */
+  @media(max-width:1100px){
+    .bshell,.svc-out,.ref-out,.rev-out,.ue-out,.ko{grid-template-columns:1fr}
+    .bside{border-right:none;border-bottom:1px solid rgba(255,255,255,.07)}
+    .sg{grid-template-columns:repeat(3,1fr)}
+    .svc-grid{grid-template-columns:1fr 1fr}
+    .pgrid,.rgrid{grid-template-columns:1fr 1fr}
+    .kpis{grid-template-columns:1fr 1fr}
+    .hc{grid-template-columns:1fr}
+    .hright{justify-content:flex-start}
+  }
+  @media(max-width:768px){
+    .hi{padding:0 18px}
+    nav{display:none}
+    section{padding:56px 20px}
+    .bmain{padding:28px 20px}
+    .bside{padding:28px 20px 20px}
+    .sg{grid-template-columns:1fr 1fr}
+    .pgrid,.rgrid,.svc-grid{grid-template-columns:1fr}
+    .crow{grid-template-columns:1fr}
+    .cgrid2{grid-template-columns:1fr}
+    .hc{padding:0 20px 56px}
+    .lt{display:none}
+    #ck{flex-direction:column;padding:14px 18px}
+    .fi{flex-direction:column;align-items:flex-start}
+    .stat-row{flex-wrap:wrap}
+  }
+</style>
+</head>
+<body>
+
+<!-- COOKIE -->
+<div id="ck">
+  <div class="ck-t">Diese Website verwendet nur technisch notwendige Cookies. Weitere Informationen finden Sie in unserer <a href="#">Datenschutzerklärung</a>.</div>
+  <div class="ck-a">
+    <button class="ck-no" onclick="document.getElementById('ck').classList.add('gone')">Ablehnen</button>
+    <button class="ck-ok" onclick="document.getElementById('ck').classList.add('gone')">Akzeptieren</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header id="mh">
+  <div class="hi">
+    <a href="#" class="logo">
+      <div class="lm">DS</div>
+      <div class="lt"><span class="ln">David Schütze</span><span class="ls">Haustechnik</span></div>
+    </a>
+    <nav>
+      <div class="ni"><a href="#" class="nl">Start</a></div>
+      <div class="ni"><a href="#ueber" class="nl">Über uns</a></div>
+      <div class="ni">
+        <a class="nl">Leistungen &#8964;</a>
+        <div class="nd">
+          <a href="#leistungen">Badsanierung &amp; Design</a>
+          <a href="#leistungen">Sanitär &amp; Installation</a>
+          <a href="#leistungen">Heizung &amp; Wärmetechnik</a>
+          <a href="#leistungen">Notdienst &amp; Reparatur</a>
+          <a href="#leistungen">Modernisierung &amp; Renovierung</a>
+        </div>
+      </div>
+      <div class="ni"><a href="#referenzen" class="nl">Referenzen</a></div>
+      <div class="ni"><a href="#kontakt" class="nl">Kontakt</a></div>
+      <div class="ni"><a href="#termin" class="nl">Termin</a></div>
+    </nav>
+    <a href="tel:+497215550000" class="btn-em"><div class="edot"></div><span>Notfall-Hotline</span></a>
+  </div>
+</header>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hbg"></div>
+  <div class="hphoto"><div class="hpi"><div class="phl"></div><div class="phi">Teamfoto wird eingefügt</div><div class="phl"></div></div></div>
+  <div class="hov"></div>
+  <div class="hc">
+    <div>
+      <div class="hbadge"><div class="bdot"></div>Karlsruhe &amp; Region Baden-Württemberg</div>
+      <h1>Ihr Experte für<br><strong>Haustechnik</strong> &amp;<br><em>Badsanierung</em></h1>
+      <p class="hsub">Hochwertige Sanitär- und Heizungslösungen für anspruchsvolle Kunden im Raum Karlsruhe. Erstklassige Materialien, präzise Handwerkskunst.</p>
+      <div class="hact">
+        <a href="#termin" class="btn-p">Termin vereinbaren</a>
+        <a href="#leistungen" class="btn-g">Leistungen entdecken</a>
+      </div>
+    </div>
+    <div class="hright">
+      <div class="stat-row">
+        <div class="sc"><div class="sn">15+</div><div class="sl">Jahre Erfahrung</div></div>
+        <div class="sc"><div class="sn">500+</div><div class="sl">Projekte</div></div>
+        <div class="sc"><div class="sn">4.9</div><div class="sl">Google-Rating</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="hscroll"><div class="sline"></div>Scrollen</div>
+</section>
+
+<!-- TICKER -->
+<div id="ticker">
+  <div class="tw">
+    <div class="tlb">Markenpartner</div>
+    <div class="tt">
+      <div class="ti">
+        <span class="titem">Viessmann</span><span class="tsep"></span>
+        <span class="titem">Grohe</span><span class="tsep"></span>
+        <span class="titem">Buderus</span><span class="tsep"></span>
+        <span class="titem">Hansgrohe</span><span class="tsep"></span>
+        <span class="titem">Vaillant</span><span class="tsep"></span>
+        <span class="titem">Kermi</span><span class="tsep"></span>
+        <span class="titem">Geberit</span><span class="tsep"></span>
+        <span class="titem">Duravit</span><span class="tsep"></span>
+        <span class="titem">Villeroy &amp; Boch</span><span class="tsep"></span>
+        <span class="titem">Bosch</span><span class="tsep"></span>
+        <span class="titem">Viessmann</span><span class="tsep"></span>
+        <span class="titem">Grohe</span><span class="tsep"></span>
+        <span class="titem">Buderus</span><span class="tsep"></span>
+        <span class="titem">Hansgrohe</span><span class="tsep"></span>
+        <span class="titem">Vaillant</span><span class="tsep"></span>
+        <span class="titem">Kermi</span><span class="tsep"></span>
+        <span class="titem">Geberit</span><span class="tsep"></span>
+        <span class="titem">Duravit</span><span class="tsep"></span>
+        <span class="titem">Villeroy &amp; Boch</span><span class="tsep"></span>
+        <span class="titem">Bosch</span><span class="tsep"></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TERMIN -->
+<div id="termin">
+  <div class="bshell">
+    <div class="bside">
+      <div class="slabel">Terminvergabe</div>
+      <h2>Termin online<br><strong>vereinbaren</strong></h2>
+      <p>Wählen Sie Ihre Leistung und ein Wunschdatum. Wir bestätigen Ihren Termin innerhalb von 24 Stunden.</p>
+      <div class="sc2">
+        <div class="sr"><div class="srdot"></div><span>oder direkt anrufen:</span></div>
+        <div class="sr"><div class="srdot"></div><a href="tel:+497215550000">0721 555-0000</a></div>
+        <div class="sr"><div class="srdot"></div><span>Mo – Fr &nbsp;07:00 – 18:00 Uhr</span></div>
+        <div class="sr"><div class="srdot"></div><span>Notdienst 24/7 verfügbar</span></div>
+      </div>
+    </div>
+    <div class="bmain">
+      <div class="stepind">
+        <div class="sdot act" id="d1">1</div>
+        <div class="sline2"></div>
+        <span class="slbl2 act" id="l1">Leistung &amp; Datum</span>
+        <div class="sline2" style="margin-left:10px;"></div>
+        <div class="sdot" id="d2">2</div>
+        <div class="sline2"></div>
+        <span class="slbl2" id="l2">Ihre Daten</span>
+      </div>
+
+      <!-- STEP 1 -->
+      <div class="spanel act" id="sp1">
+        <div style="font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.42);margin-bottom:9px;">Leistung wählen</div>
+        <div class="sg">
+          <button class="sb" onclick="selSvc(this,'Badsanierung &amp; Design')"><div class="sb-mark"></div>Badsanierung<br>&amp; Design</button>
+          <button class="sb" onclick="selSvc(this,'Sanitär &amp; Installation')"><div class="sb-mark"></div>Sanitär &amp;<br>Installation</button>
+          <button class="sb" onclick="selSvc(this,'Heizung &amp; Wärmetechnik')"><div class="sb-mark"></div>Heizung &amp;<br>Wärmetechnik</button>
+          <button class="sb" onclick="selSvc(this,'Notdienst &amp; Reparatur')"><div class="sb-mark"></div>Notdienst &amp;<br>Reparatur</button>
+          <button class="sb" onclick="selSvc(this,'Modernisierung')"><div class="sb-mark"></div>Modernisierung<br>&amp; Renovierung</button>
+        </div>
+        <div class="crow">
+          <div class="mcal">
+            <div class="mch">
+              <button class="carro" onclick="chM(-1)">&#8249;</button>
+              <div class="cml" id="mlbl">April 2026</div>
+              <button class="carro" onclick="chM(1)">&#8250;</button>
+            </div>
+            <div class="cgrid" id="cg"></div>
+          </div>
+          <div class="tpanel" id="tp" style="display:none;">
+            <div class="tp-title">Uhrzeit wählen</div>
+            <div class="tgrid">
+              <div class="ts" onclick="pickT(this)">08:00</div>
+              <div class="ts" onclick="pickT(this)">09:00</div>
+              <div class="ts na">10:00</div>
+              <div class="ts" onclick="pickT(this)">11:00</div>
+              <div class="ts" onclick="pickT(this)">13:00</div>
+              <div class="ts na">14:00</div>
+              <div class="ts" onclick="pickT(this)">15:00</div>
+              <div class="ts" onclick="pickT(this)">16:00</div>
+              <div class="ts" onclick="pickT(this)">17:00</div>
+            </div>
+          </div>
+        </div>
+        <div class="snav"><button class="btn-nx" onclick="g2()">Weiter zu Ihren Daten</button></div>
+      </div>
+
+      <!-- STEP 2 -->
+      <div class="spanel" id="sp2">
+        <div class="sum-tags" id="stags"></div>
+        <div class="cgrid2">
+          <div class="fg"><label>Vorname <span>*</span></label><input type="text" class="fc" placeholder="Max"></div>
+          <div class="fg"><label>Nachname <span>*</span></label><input type="text" class="fc" placeholder="Mustermann"></div>
+          <div class="fg"><label>Telefon <span>*</span></label><input type="tel" class="fc" placeholder="+49 721 ..."></div>
+          <div class="fg"><label>E-Mail</label><input type="email" class="fc" placeholder="max@beispiel.de"></div>
+          <div class="fg full"><label>Anliegen (optional)</label><textarea class="fc" rows="2" placeholder="Kurze Beschreibung Ihres Projekts..."></textarea></div>
+          <div class="fg full"><div class="drow"><input type="checkbox" id="dg1"><label for="dg1">Ich stimme der Verarbeitung meiner Daten zur Terminvereinbarung gemäß der <a href="#">Datenschutzerklärung</a> zu. <span>*</span></label></div></div>
+        </div>
+        <div class="snav">
+          <button class="btn-bk" onclick="g1()">Zurück</button>
+          <button class="btn-sub" onclick="subBook()">Termin verbindlich anfragen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LEISTUNGEN -->
+<section id="leistungen">
+  <div class="inner">
+    <div class="svc-out">
+      <div>
+        <div class="lbl">Leistungen</div>
+        <h2 class="stitle">Was wir für Sie<br><strong>leisten</strong></h2>
+        <p class="sdesc">Von der Badsanierung bis zur Heizungsanlage – hochwertige Haustechniklösungen aus einer Hand, mit Premium-Materialien und jahrelanger Expertise.</p>
+        <br><br>
+        <a href="#termin" class="btn-p" style="display:inline-flex;text-decoration:none;">Jetzt anfragen</a>
+      </div>
+      <div class="svc-grid">
+        <div class="svc"><div class="svcn">01</div><div class="svcl"></div><div class="svct">Badsanierung &amp; Design</div><div class="svcd">Luxusbäder von der Planung bis zur Fertigstellung – individuell, hochwertig und termingerecht umgesetzt.</div></div>
+        <div class="svc"><div class="svcn">02</div><div class="svcl"></div><div class="svct">Sanitär &amp; Installation</div><div class="svcd">Fachgerechte Installation aller Sanitäranlagen mit erstklassigen Markenprodukten führender Hersteller.</div></div>
+        <div class="svc"><div class="svcn">03</div><div class="svcl"></div><div class="svct">Heizung &amp; Wärmetechnik</div><div class="svcd">Moderne Heizsysteme, Wärmepumpen und Effizienzlösungen für nachhaltigen Wohnkomfort.</div></div>
+        <div class="svc"><div class="svcn">04</div><div class="svcl"></div><div class="svct">Notdienst &amp; Reparatur</div><div class="svcd">24/7 Notdienst bei Rohrbruch und Heizungsausfall – schnell und zuverlässig im gesamten Einzugsgebiet.</div></div>
+        <div class="svc last"><div class="svcn">05</div><div class="svcl"></div><div class="svct">Modernisierung &amp; Renovierung</div><div class="svcd">Umfassende Modernisierung Ihrer Bestandsanlage – energieeffizient, nachhaltig und wertsteigernd für Ihre Immobilie.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REFERENZEN -->
+<section id="referenzen">
+  <div class="inner">
+    <div class="ref-out">
+      <div>
+        <div class="lbl">Projekte</div>
+        <h2 class="stitle">Referenzen aus<br><strong>der Region</strong></h2>
+        <p class="sdesc">Ausgewählte Projekte aus dem Raum Karlsruhe und Baden-Württemberg.</p>
+        <br><br>
+        <a href="#kontakt" class="btn-g" style="display:inline-flex;text-decoration:none;border-color:rgba(255,255,255,.3);color:#fff;">Alle Projekte</a>
+      </div>
+      <div class="pgrid">
+        <div class="pc"><div class="pimg"><div class="picon"></div></div><div class="pi"><div class="pt">Badsanierung</div><div class="pti">Komplettbad Neubau</div><div class="pl">Karlsruhe-Weststadt &nbsp;·&nbsp; 2024</div></div></div>
+        <div class="pc"><div class="pimg"><div class="picon"></div></div><div class="pi"><div class="pt">Heizung</div><div class="pti">Wärmepumpenanlage EFH</div><div class="pl">Ettlingen &nbsp;·&nbsp; 2024</div></div></div>
+        <div class="pc"><div class="pimg"><div class="picon"></div></div><div class="pi"><div class="pt">Modernisierung</div><div class="pti">Badezimmer-Upgrade MFH</div><div class="pl">Bruchsal &nbsp;·&nbsp; 2023</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BEWERTUNGEN -->
+<section id="bewertungen">
+  <div class="inner">
+    <div class="rev-out">
+      <div>
+        <div class="lbl">Kundenstimmen</div>
+        <h2 class="stitle">Was unsere Kunden<br><strong>sagen</strong></h2>
+        <div class="gb">
+          <div class="glo">G</div>
+          <div><div class="gs">4.9</div><div class="gst">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="gc">48 Google-Bewertungen</div></div>
+        </div>
+      </div>
+      <div class="rgrid">
+        <div class="rc"><div class="rst">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="rtx">„Absolut professionelle Arbeit – pünktlich, sauber und das Ergebnis ist traumhaft. Unser neues Bad übersteigt alle Erwartungen!"</div><div class="rau"><div class="rav">MK</div><div><div class="rn">Markus K.</div><div class="rd">Karlsruhe · vor 2 Monaten</div></div></div></div>
+        <div class="rc"><div class="rst">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="rtx">„Herr Schütze hat bei einem Rohrbruch schnell und kompetent geholfen. Notdienst innerhalb von 30 Minuten – wirklich top!"</div><div class="rau"><div class="rav">SR</div><div><div class="rn">Sandra R.</div><div class="rd">Ettlingen · vor 4 Monaten</div></div></div></div>
+        <div class="rc"><div class="rst">&#9733;&#9733;&#9733;&#9733;&#9733;</div><div class="rtx">„Die neue Heizungsanlage läuft perfekt. Sehr freundliches Team, faire Preise und hervorragende Beratung. Klare Empfehlung!"</div><div class="rau"><div class="rav">TH</div><div><div class="rn">Thomas H.</div><div class="rd">Bruchsal · vor 6 Monaten</div></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ÜBER UNS -->
+<section id="ueber">
+  <div class="inner">
+    <div class="ue-out">
+      <div>
+        <div class="lbl">Über uns</div>
+        <h2 class="stitle">Ihr Partner in<br><strong>der Region</strong></h2>
+        <p class="sdesc" style="margin-bottom:16px;">David Schütze Haustechnik steht für höchste Qualität, Zuverlässigkeit und persönlichen Service. Seit über 15 Jahren sind wir Ihr vertrauenswürdiger Partner für alle Haustechnikfragen im Raum Karlsruhe – innerhalb eines Serviceradius von 100 km.</p>
+        <p class="sdesc">Wir arbeiten ausschließlich mit Premium-Materialien führender Hersteller und bieten neben handwerklicher Exzellenz eine umfassende Beratung, die Ihre individuellen Wünsche in den Mittelpunkt stellt.</p>
+        <div class="kpis">
+          <div class="kpi"><div class="kpin">100 km</div><div class="kpil">Serviceradius</div></div>
+          <div class="kpi"><div class="kpin">15 J.</div><div class="kpil">Erfahrung</div></div>
+          <div class="kpi"><div class="kpin">24/7</div><div class="kpil">Notdienst</div></div>
+          <div class="kpi"><div class="kpin">500+</div><div class="kpil">Projekte</div></div>
+        </div>
+      </div>
+      <div class="umap">
+        <svg viewBox="0 0 400 480" xmlns="http://www.w3.org/2000/svg">
+          <rect width="400" height="480" fill="#f0ede8"/>
+          <path d="M155,25 L175,20 L200,22 L225,18 L250,28 L272,38 L285,55 L295,78 L310,98 L318,125 L325,155 L320,180 L335,205 L348,232 L342,258 L328,278 L318,308 L302,335 L278,358 L255,378 L228,392 L200,405 L172,395 L145,378 L118,358 L95,335 L75,308 L62,278 L52,250 L48,222 L55,195 L46,168 L54,140 L68,115 L82,92 L92,68 L108,48 L130,35 Z" fill="#ddd8d0" stroke="#c4beb6" stroke-width="1.5"/>
+          <circle cx="150" cy="195" r="118" fill="none" stroke="#c8723a" stroke-width="1.5" stroke-dasharray="7,5" opacity="0.5"/>
+          <circle cx="150" cy="195" r="5" fill="#c8723a"/>
+          <circle cx="150" cy="195" r="11" fill="#c8723a" opacity="0.18"/>
+          <circle cx="212" cy="162" r="3.5" fill="#2d5fa6" opacity="0.6"/>
+          <text x="218" y="167" font-size="9" font-family="DM Sans,sans-serif" fill="#2d5fa6" opacity="0.7">Stuttgart</text>
+          <circle cx="95" cy="192" r="3.5" fill="#2d5fa6" opacity="0.6"/>
+          <text x="34" y="197" font-size="9" font-family="DM Sans,sans-serif" fill="#2d5fa6" opacity="0.7">Mannheim</text>
+          <circle cx="150" cy="248" r="3.5" fill="#2d5fa6" opacity="0.6"/>
+          <text x="156" y="253" font-size="9" font-family="DM Sans,sans-serif" fill="#2d5fa6" opacity="0.7">Freiburg</text>
+          <text x="98" y="210" font-size="10" font-family="DM Sans,sans-serif" fill="#c8723a" font-weight="600">Karlsruhe</text>
+          <text x="175" y="318" font-size="7.5" font-family="DM Sans,sans-serif" fill="#8a8480" opacity="0.65">100 km Serviceradius</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KONTAKT -->
+<section id="kontakt">
+  <div class="inner">
+    <div class="lbl">Kontakt</div>
+    <h2 class="stitle">Sprechen wir über<br><strong>Ihr Projekt</strong></h2>
+    <div class="ko">
+      <div class="kinf">
+        <div class="kr"><div class="krl">Adresse</div><div class="krv">Musterstraße 12<br>76137 Karlsruhe</div></div>
+        <div class="kdiv"></div>
+        <div class="kr"><div class="krl">Telefon</div><div class="krv"><a href="tel:+497215550000">0721 555-0000</a></div></div>
+        <div class="kdiv"></div>
+        <div class="kr"><div class="krl">E-Mail</div><div class="krv"><a href="mailto:info@schuetze-haustechnik.de">info@schuetze-haustechnik.de</a></div></div>
+        <div class="kdiv"></div>
+        <div class="kr"><div class="krl">Öffnungszeiten</div><div class="krv">Mo – Fr &nbsp;07:00 – 18:00 Uhr<br>Notdienst 24/7</div></div>
+        <div class="kdiv"></div>
+        <a href="tel:+497215550000" class="kem"><div class="edot"></div>Notfall-Hotline anrufen</a>
+      </div>
+      <div class="kform">
+        <h3>Nachricht senden</h3>
+        <div class="cgrid2">
+          <div class="fg"><label>Vorname <span>*</span></label><input type="text" class="fc" placeholder="Max"></div>
+          <div class="fg"><label>Nachname <span>*</span></label><input type="text" class="fc" placeholder="Mustermann"></div>
+          <div class="fg"><label>E-Mail <span>*</span></label><input type="email" class="fc" placeholder="max@beispiel.de"></div>
+          <div class="fg"><label>Betreff</label><select class="fc"><option>Badsanierung anfragen</option><option>Heizung &amp; Wärmetechnik</option><option>Sanitär &amp; Installation</option><option>Notdienst</option><option>Sonstiges</option></select></div>
+          <div class="fg full"><label>Nachricht <span>*</span></label><textarea class="fc" rows="4" placeholder="Beschreiben Sie kurz Ihr Anliegen..."></textarea></div>
+          <div class="fg full"><div class="drow"><input type="checkbox" id="dg2"><label for="dg2">Ich stimme der Verarbeitung meiner Daten gemäß der <a href="#">Datenschutzerklärung</a> zu. Daten werden ausschließlich zur Bearbeitung meiner Anfrage verwendet und nicht an Dritte weitergegeben. <span>*</span></label></div></div>
+        </div>
+        <button class="btn-snd" onclick="subCont()">Nachricht senden</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="fi">
+    <div class="fc2">© 2026 David Schütze Haustechnik · Alle Rechte vorbehalten</div>
+    <div class="fls"><a href="#">Impressum</a><a href="#">Datenschutz</a><a href="#">AGB</a><a href="#">Cookie-Einstellungen</a></div>
+  </div>
+</footer>
+
+<!-- MODAL -->
+<div class="mbg" id="modal">
+  <div class="mbox">
+    <div class="mtt">Vielen Dank</div>
+    <div class="mtx" id="mmsg">Ihre Anfrage wurde erfolgreich übermittelt. Wir melden uns innerhalb von 24 Stunden.</div>
+    <button class="btn-mc" onclick="document.getElementById('modal').classList.remove('open')">Schließen</button>
+  </div>
+</div>
+
+<script>
+  // Header
+  window.addEventListener('scroll',()=>document.getElementById('mh').classList.toggle('sc',scrollY>50));
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click',e=>{
+      const t=document.querySelector(a.getAttribute('href'));
+      if(t){e.preventDefault();window.scrollTo({top:t.offsetTop-72,behavior:'smooth'});}
+    });
+  });
+
+  // Booking
+  let svSvc='',svDay=null,svTime='',cy=2026,cm=3;
+  const mns=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+  const dns=['Mo','Di','Mi','Do','Fr','Sa','So'];
+
+  function selSvc(el,n){document.querySelectorAll('.sb').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');svSvc=n;}
+  function pickT(el){if(el.classList.contains('na'))return;document.querySelectorAll('.ts.sel').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');svTime=el.textContent.trim();}
+
+  function renderCal(){
+    document.getElementById('mlbl').textContent=mns[cm]+' '+cy;
+    const g=document.getElementById('cg'); g.innerHTML='';
+    dns.forEach(d=>{const el=document.createElement('div');el.className='cdn';el.textContent=d;g.appendChild(el);});
+    const fd=new Date(cy,cm,1).getDay(),off=fd===0?6:fd-1;
+    for(let i=0;i<off;i++){const el=document.createElement('div');el.className='cd emp';g.appendChild(el);}
+    const dim=new Date(cy,cm+1,0).getDate(),tod=new Date();
+    for(let d=1;d<=dim;d++){
+      const el=document.createElement('div');el.className='cd';el.textContent=d;
+      const dt=new Date(cy,cm,d);
+      const we=dt.getDay()===0||dt.getDay()===6;
+      const past=dt<new Date(tod.getFullYear(),tod.getMonth(),tod.getDate());
+      if(we||past){el.classList.add('off');}
+      else{
+        if(d===tod.getDate()&&cm===tod.getMonth()&&cy===tod.getFullYear())el.classList.add('tod');
+        if(svDay===d)el.classList.add('sel');
+        el.addEventListener('click',()=>{document.querySelectorAll('.cd.sel').forEach(e=>e.classList.remove('sel'));el.classList.add('sel');svDay=d;document.getElementById('tp').style.display='block';});
+      }
+      g.appendChild(el);
+    }
+  }
+  function chM(d){cm+=d;if(cm>11){cm=0;cy++;}if(cm<0){cm=11;cy--;}svDay=null;renderCal();}
+  renderCal();
+
+  function g2(){
+    document.getElementById('sp1').classList.remove('act');
+    document.getElementById('sp2').classList.add('act');
+    document.getElementById('d1').className='sdot dn';
+    document.getElementById('d2').className='sdot act';
+    document.getElementById('l1').classList.remove('act');
+    document.getElementById('l2').classList.add('act');
+    const tags=document.getElementById('stags');tags.innerHTML='';
+    [svSvc,svDay?(mns[cm]+' '+svDay):'',svTime].filter(Boolean).forEach(s=>{const t=document.createElement('div');t.className='stag';t.textContent=s;tags.appendChild(t);});
+  }
+  function g1(){
+    document.getElementById('sp2').classList.remove('act');
+    document.getElementById('sp1').classList.add('act');
+    document.getElementById('d2').className='sdot';
+    document.getElementById('d1').className='sdot act';
+    document.getElementById('l2').classList.remove('act');
+    document.getElementById('l1').classList.add('act');
+  }
+  function subBook(){
+    if(!document.getElementById('dg1').checked){alert('Bitte stimmen Sie der Datenschutzerklärung zu.');return;}
+    document.getElementById('mmsg').textContent='Ihr Terminwunsch wurde übermittelt. Wir bestätigen innerhalb von 24 Stunden.';
+    document.getElementById('modal').classList.add('open');
+  }
+  function subCont(){
+    if(!document.getElementById('dg2').checked){alert('Bitte stimmen Sie der Datenschutzerklärung zu.');return;}
+    document.getElementById('mmsg').textContent='Ihre Nachricht wurde erfolgreich gesendet. Wir antworten Ihnen so schnell wie möglich.';
+    document.getElementById('modal').classList.add('open');
+  }
+</script>
+</body>
+</html>
